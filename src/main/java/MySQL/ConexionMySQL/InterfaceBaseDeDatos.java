@@ -1,5 +1,8 @@
 package MySQL.ConexionMySQL;
 
+import MySQL.Model.Producto;
+import MySQL.Model.Ticket;
+
 import java.util.HashMap;
 
 public interface InterfaceBaseDeDatos {

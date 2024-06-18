@@ -1,4 +1,9 @@
 package MySQL.ConexionMySQL;
+import MySQL.Entrada.Input;
+import MySQL.Entrada.Material;
+import MySQL.Model.*;
+import MySQL.*;
+
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Locale;
@@ -70,17 +75,17 @@ public class MySQLDB {
                 switch(tipo){
                     case "arbol":
                         String insertarArbol = String.format(Locale.US, "INSERT INTO arbol VALUES (%d, %f)",
-                                producto.getProductoID(), ((Producto_Arbol) producto).getArbolAltura());
+                                producto.getProductoID(), ((Arbol) producto).getArbolAltura());
                         stmt.executeUpdate(insertarArbol);
                         break;
                     case "flor":
                         String insertarFlor = String.format(Locale.US, "INSERT INTO flor VALUES (%d, '%s')",
-                                producto.getProductoID(), ((Producto_Flor) producto).getFlorColor());
+                                producto.getProductoID(), ((Flor) producto).getFlorColor());
                         stmt.executeUpdate(insertarFlor);
                         break;
                     case "decoracion":
                         String insertarDecoracion = String.format("INSERT INTO decoracion VALUES (%d,'%s')",
-                                producto.getProductoID(), ((Producto_Decoracion) producto).getDecoracionMaterial());
+                                producto.getProductoID(), ((Decoracion) producto).getDecoracionMaterial());
                         stmt.executeUpdate(insertarDecoracion);
                         break;
                 }
@@ -156,19 +161,19 @@ public class MySQLDB {
                     "WHERE producto.id = " + id);
             if (rs.next()) {
                 producto = switch (rs.getString("tipo").toLowerCase()) {
-                    case "arbol" -> new Producto_Arbol(
+                    case "arbol" -> new Arbol(
                             rs.getInt("id"),
                             rs.getString("nombre"),
                             rs.getFloat("precio"),
                             rs.getFloat("altura"),
                             rs.getInt("cantidad"));
-                    case "flor" -> new Producto_Flor(
+                    case "flor" -> new Flor(
                             rs.getInt("id"),
                             rs.getString("nombre"),
                             rs.getFloat("precio"),
                             rs.getString("color"),
                             rs.getInt("cantidad"));
-                    case "decoracion" -> new Producto_Decoracion(
+                    case "decoracion" -> new Decoracion(
                             rs.getInt("id"),
                             rs.getString("nombre"),
                             rs.getFloat("precio"),
@@ -230,7 +235,7 @@ public class MySQLDB {
             while (rs.next()) {
                 switch (rs.getString("tipo").toLowerCase()) {
                     case "arbol":
-                        ticket.agregarProductoAlTicket(new Producto_Arbol(
+                        ticket.agregarProductoAlTicket(new Arbol(
                                 rs.getInt("id"),
                                 rs.getString("nombre"),
                                 rs.getFloat("precio"),
@@ -238,7 +243,7 @@ public class MySQLDB {
                                 rs.getInt("producto_ticket.cantidad")));
                         break;
                     case "flor":
-                        ticket.agregarProductoAlTicket(new Producto_Flor(
+                        ticket.agregarProductoAlTicket(new Flor(
                                 rs.getInt("id"),
                                 rs.getString("nombre"),
                                 rs.getFloat("precio"),
@@ -246,7 +251,7 @@ public class MySQLDB {
                                 rs.getInt("producto_ticket.cantidad")));
                         break;
                     case "decoracion":
-                        ticket.agregarProductoAlTicket(new Producto_Decoracion(
+                        ticket.agregarProductoAlTicket(new Decoracion(
                                 rs.getInt("id"),
                                 rs.getString("nombre"),
                                 rs.getFloat("precio"),
@@ -359,7 +364,7 @@ public class MySQLDB {
             while (rs.next()) {
                 switch (rs.getString("tipo").toLowerCase()) {
                     case "arbol":
-                        productos.put(rs.getInt("id"), new Producto_Arbol(
+                        productos.put(rs.getInt("id"), new Arbol(
                                 rs.getInt("id"),
                                 rs.getString("nombre"),
                                 rs.getFloat("precio"),
@@ -367,7 +372,7 @@ public class MySQLDB {
                                 rs.getInt("cantidad")));
                         break;
                     case "flor":
-                        productos.put(rs.getInt("id"), new Producto_Flor(
+                        productos.put(rs.getInt("id"), new Flor(
                                 rs.getInt("id"),
                                 rs.getString("nombre"),
                                 rs.getFloat("precio"),
@@ -375,7 +380,7 @@ public class MySQLDB {
                                 rs.getInt("cantidad")));
                         break;
                     case "decoracion":
-                        productos.put(rs.getInt("id"), new Producto_Decoracion(
+                        productos.put(rs.getInt("id"), new Decoracion(
                                 rs.getInt("id"),
                                 rs.getString("nombre"),
                                 rs.getFloat("precio"),
