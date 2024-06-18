@@ -1,5 +1,7 @@
 package MySQL.App;
 
+import MySQL.Model.Floristeria;
+
 public class AplicacionFloristeria {
 
     private static Floristeria floristeria;
