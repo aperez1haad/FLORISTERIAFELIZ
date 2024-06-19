@@ -1,5 +1,7 @@
 package MySQL.Model;
 
+import MySQL.Entrada.Material;
+
 public class Decoracion extends Producto {
 
     private static final long serialVersionUID = 1L;

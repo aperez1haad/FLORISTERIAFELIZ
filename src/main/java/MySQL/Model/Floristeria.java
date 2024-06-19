@@ -1,5 +1,12 @@
 package MySQL.Model;
 
+import MySQL.ConexionMySQL.InterfaceBaseDeDatos;
+import MySQL.ConexionMySQL.MySQLDB;
+import MySQL.Excepciones.CantidadExcedida;
+import MySQL.Excepciones.ProductoNoExiste;
+
+import java.util.HashMap;
+
 public class Floristeria {
 
 import java.util.HashMap;
@@ -98,6 +105,6 @@ import java.util.HashMap;
             return returnValue;
         }
 
-    }
+    }}
 
 
