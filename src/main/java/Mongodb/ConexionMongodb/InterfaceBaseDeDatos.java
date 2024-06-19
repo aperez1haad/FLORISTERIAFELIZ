@@ -1,5 +1,6 @@
 package Mongodb.ConexionMongodb;
 
+import Mongodb.Excepciones.CantidadExcedida;
 import Mongodb.Model.Producto;
 import Mongodb.Model.Ticket;
 
