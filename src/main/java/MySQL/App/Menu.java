@@ -4,7 +4,7 @@ import MySQL.Entrada.Input;
 import MySQL.Model.Floristeria;
 import static MySQL.App.AplicacionFloristeria.*;
 
-public class Menu {
+public class    Menu {
 
     private static Floristeria floristeria = Floristeria.getInstancia();
     public static void ejecutarMenu(){
