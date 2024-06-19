@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS Floristeria;
-CREATE DATABASE Floristeria CHARACTER SET utf8mb4;
-USE Floristeria;
+DROP DATABASE IF EXISTS floristeriafeliz;
+CREATE DATABASE floristeriafeliz CHARACTER SET utf8mb4;
+USE floristeriafeliz;
 
 CREATE TABLE datos_floristeria (
 	id INT UNSIGNED NOT NULL PRIMARY KEY,

@@ -22,7 +22,6 @@ public class Floristeria {
     public static Floristeria getInstancia() {
 
         if (instancia == null) {
-
             return new Floristeria();
         }
         return instancia;
