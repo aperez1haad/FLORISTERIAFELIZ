@@ -9,8 +9,6 @@ import java.util.HashMap;
 
 public class Floristeria {
 
-import java.util.HashMap;
-
 
     private static Floristeria instancia = null;
     private String nombre;
@@ -94,7 +92,7 @@ import java.util.HashMap;
         public float consultarValorTotalVentas () {
             return baseDeDatos.consultarValorTotalTickets();
         }
-        public boolean existeProducto ( int productoID, int cantidadMinima) throws ProductoNoExiste {
+        public boolean existeProducto (int productoID, int cantidadMinima) throws ProductoNoExiste {
             boolean returnValue;
             Producto producto = baseDeDatos.consultarProducto(productoID);
             if (producto != null) {
