@@ -26,7 +26,7 @@ public class MongoDB implements InterfaceBaseDeDatos {
     private int nextTicketId;
 
     private MongoDB() {
-        CONNECTION_URL = "mongodb://localhost:27017";
+        CONNECTION_URL = "mongodb://localhost:27017/";
         MongoClient mongoClient = MongoClients.create(CONNECTION_URL);
         database = mongoClient.getDatabase("floristeriafeliz");
         nextProductoId = generarSiguienteId("producto");
