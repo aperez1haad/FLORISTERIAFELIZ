@@ -1,5 +1,6 @@
 package MySQL.ConexionMySQL;
 
+import MySQL.Excepciones.CantidadExcedida;
 import MySQL.Model.Producto;
 import MySQL.Model.Ticket;
 

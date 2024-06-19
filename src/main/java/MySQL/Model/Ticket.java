@@ -13,7 +13,7 @@ public class Ticket implements Serializable {
     private float ticketTotal = 0.0F;
     //private static int proximoID = 1;
 
-    public Ticket(int ticketID) {
+    public Ticket(int ticketID, LocalDate fecha) {
         this.ticketID = ticketID;
         ticketDate = LocalDate.now();
         productosVendidos = new HashMap<>();

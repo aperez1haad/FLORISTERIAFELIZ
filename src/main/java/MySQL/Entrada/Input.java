@@ -149,5 +149,25 @@ public class Input {
 
         return response;
     }
+    public static String inputBaseDeDatos (String pregunta) {
+        String response = "";
+        boolean okey = false;
+        do {
+            System.out.println(pregunta);
+            response = input.nextLine();
+            try {
+                if (response.isEmpty()|| (!response.equalsIgnoreCase("Mongodb")&&!response.equalsIgnoreCase("MySQL"))) {
+                    throw new Exception(EMPTY_STRING_ERR_MSG);
+                }
+                else {
+                    okey = true;
+                    System.out.println("Base de datos no encontrada");
+                }
+            } catch (Exception ex) {
+                System.err.println(ex.getMessage());
+            }
+        } while (!okey);
+        return response;
+    }
 
 }

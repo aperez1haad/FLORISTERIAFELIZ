@@ -11,6 +11,7 @@ import MySQL.Model.Flor;
 import MySQL.Model.Arbol;
 import MySQL.Model.Ticket;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 
 public class AplicacionFloristeria {
@@ -115,7 +116,7 @@ public class AplicacionFloristeria {
     }
 
     public static void crearTicket() {
-        Ticket ticket = new Ticket(floristeria.consultarSiguienteTicketID());
+        Ticket ticket = new Ticket(floristeria.consultarSiguienteTicketID(), LocalDate.now());
         agregarProductosTicket(ticket);
         floristeria.agregarTicket(ticket);
     }

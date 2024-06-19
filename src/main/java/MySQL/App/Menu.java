@@ -2,6 +2,7 @@ package MySQL.App;
 
 import MySQL.Entrada.Input;
 import MySQL.Model.Floristeria;
+import static MySQL.App.AplicacionFloristeria.*;
 
 public class Menu {
 
