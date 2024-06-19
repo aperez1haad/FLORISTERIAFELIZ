@@ -16,7 +16,7 @@ public class Floristeria {
     private InterfaceBaseDeDatos baseDeDatos;
 
     private Floristeria() {
-        this.baseDeDatos = MySQLDB.instanciar(Input.inputBaseDeDatos("Que base de datos quieres utilizar?"));
+        this.baseDeDatos = MySQLDB.instanciar(Input.inputString("Nombre de la base de Datos"));
         nombre = "Floristeria Feliz";
     }
     public static Floristeria getInstancia() {

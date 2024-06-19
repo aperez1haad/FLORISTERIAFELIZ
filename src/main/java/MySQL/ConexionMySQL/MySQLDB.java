@@ -4,7 +4,6 @@ import MySQL.Entrada.Input;
 import MySQL.Entrada.Material;
 import MySQL.Excepciones.CantidadExcedida;
 import MySQL.Model.*;
-import MySQL.*;
 
 import java.sql.*;
 import java.util.HashMap;
