@@ -8,7 +8,6 @@ import MySQL.Model.*;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Locale;
-import java.sql.ResultSet;
 
 public class MySQLDB implements InterfaceBaseDeDatos {
     private static MySQLDB instancia;
@@ -19,7 +18,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
 
     private MySQLDB(String dbName) {
         this.dbName = dbName;
-        if (obtenerConexion()) {
+        if (obtenerConexion(dbName)) {
             nextProductoId = generarSiguienteId("producto");
             nextTicketId = generarSiguienteId("ticket");
         } else {
@@ -35,52 +34,64 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     }
 
 
-    public boolean obtenerConexion() {
-        String usuario = Input.inputString("Dime tu usuario MySQL:");
-        String password = Input.inputString("Dime tu password MySQL:");
+    public boolean obtenerConexion(String dbName) {
+        boolean conexionEstablecida = false;
+        while (!conexionEstablecida) {
 
-        try {
-            // Intenta conectar a la base de datos
-            String url = "jdbc:mysql://localhost:3306/?user=" + usuario + "&password=" + password;
-            conn = DriverManager.getConnection(url);
-            System.out.println("Conexión a MySQL establecida.");
+            String usuario = Input.inputString("Dime tu usuario MySQL:");
+            String password = Input.inputString("Dime tu password MySQL:");
 
-            // Verifica si la base de datos existe
-            ResultSet resultSet = conn.getMetaData().getCatalogs();
-            boolean dbExists = false;
-            while (resultSet.next()) {
-                if (resultSet.getString(1).equalsIgnoreCase(dbName)) { // Usa el nombre proporcionado
-                    dbExists = true;
-                    break;
+            try {
+                // Intenta conectar a la base de datos
+                String url = "jdbc:mysql://localhost:3306/?user=" + usuario + "&password=" + password;
+                conn = DriverManager.getConnection(url);
+                System.out.println("Conexión a MySQL establecida.");
+
+                // Verifica si la base de datos existe
+                ResultSet resultSet = conn.getMetaData().getCatalogs();
+                boolean dbExists = false;
+                while (resultSet.next()) {
+                    if (resultSet.getString(1).equalsIgnoreCase(this.dbName)) { // Usa el nombre proporcionado
+                        dbExists = true;
+                        break;
+                    }
                 }
-            }
 
-            // Si no existe, crea la base de datos
-            if (!dbExists) {
-                System.out.println("Base de datos no encontrada, creando base de datos...");
-                try (Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("CREATE DATABASE " + dbName);
-                    System.out.println("Base de datos creada exitosamente.");
+                // Si no existe, crea la base de datos
+                if (!dbExists) {
+                    System.out.println("Base de datos no encontrada, creando base de datos...");
+                    try (Statement stmt = conn.createStatement()) {
+                        stmt.executeUpdate("CREATE DATABASE " + this.dbName);
+                        System.out.println("Base de datos creada exitosamente.");
+                    }
                 }
+
+
+                // Conecta a la base de datos específica
+                String dbUrl = "jdbc:mysql://localhost:3306/" + dbName + "?user=" + usuario + "&password=" + password;
+                conn = DriverManager.getConnection(dbUrl);
+
+
+                System.out.println("Conectado a la base de datos " + dbName);  //Eugenia
+
+
+
+                // Crear tablas si no existen
+                crearTablas(conn);
+
+                conexionEstablecida = true;
+
+            } catch (SQLException e) {
+                System.err.println("Error al conectar a la base de datos: " + e.getMessage());
+                System.out.println("Por favor, intenta nuevamente con las credenciales correctas.");
             }
-
-            // Conecta a la base de datos específica
-            String dbUrl = "jdbc:mysql://localhost:3306/" + dbName + "?user=" + usuario + "&password=" + password;
-            conn = DriverManager.getConnection(dbUrl);
-
-            // Crear tablas si no existen
-            crearTablas(conn);
-
-            return true;
-
-        } catch (SQLException e) {
-            System.err.println("Error al conectar a la base de datos: " + e.getMessage());
-            return false;
         }
+        return true;
     }
 
 
     private void crearTablas(Connection conn) {
+        // Crear las tablas si no existen
         String createProductoTable = "CREATE TABLE IF NOT EXISTS producto (" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, " +  // Añadido AUTO_INCREMENT
                 "nombre VARCHAR(50), " +
@@ -142,18 +153,18 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 switch (tipo) {
                     case "arbol" -> {
                         String insertarArbol = String.format(Locale.US,
-                                "INSERT INTO arbol VALUES (%d, %f)",
+                                "INSERT INTO arbol (id, altura) VALUES (%d, %f)",
                                 producto.getProductoID(), ((Arbol) producto).getArbolAltura());
                         stmt.executeUpdate(insertarArbol);
                     }
                     case "flor" -> {
                         String insertarFlor = String.format(Locale.US,
-                                "INSERT INTO flor VALUES (%d, '%s')",
+                                "INSERT INTO flor (id, color) VALUES (%d, '%s')",
                                 producto.getProductoID(), ((Flor) producto).getFlorColor());
                         stmt.executeUpdate(insertarFlor);
                     }
                     case "decoracion" -> {
-                        String insertarDecoracion = String.format("INSERT INTO decoracion VALUES (%d,'%s')",
+                        String insertarDecoracion = String.format("INSERT INTO decoracion (id, material) VALUES (%d,'%s')",
                                 producto.getProductoID(), ((Decoracion) producto).getDecoracionMaterial());
                         stmt.executeUpdate(insertarDecoracion);
                     }
