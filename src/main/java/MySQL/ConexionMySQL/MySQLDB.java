@@ -57,7 +57,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                         break;
                     }
                 }
-
                 // Si no existe, crea la base de datos
                 if (!dbExists) {
                     System.out.println("Base de datos no encontrada, creando base de datos...");
@@ -67,15 +66,11 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                     }
                 }
 
-
                 // Conecta a la base de datos específica
                 String dbUrl = "jdbc:mysql://localhost:3306/" + dbName + "?user=" + usuario + "&password=" + password;
                 conn = DriverManager.getConnection(dbUrl);
 
-
                 System.out.println("Conectado a la base de datos " + dbName);  //Eugenia
-
-
 
                 // Crear tablas si no existen
                 crearTablas(conn);

@@ -24,7 +24,7 @@ public class Floristeria {
     public static Floristeria getInstancia() {
 
         if (instancia == null) {
-            String dbName = Input.inputString("Escribe el Nombre de la base de datos a consultar/crear en MySQL: ");
+            String dbName = Input.inputString("Escribe el Nombre de la Floristeria: ");
             instancia = new Floristeria(dbName);
         }
         return instancia;
