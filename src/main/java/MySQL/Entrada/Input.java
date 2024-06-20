@@ -53,8 +53,9 @@ public class Input {
         boolean okey = false;
         do {
             System.out.println(pregunta);
+
             try {
-                response = input.nextLine();
+                response = input.nextLine().trim();       //Eugenia adadir .trim()
                 if (response.isEmpty()) {
                     throw new Exception(EMPTY_STRING_ERR_MSG);
                 } else {

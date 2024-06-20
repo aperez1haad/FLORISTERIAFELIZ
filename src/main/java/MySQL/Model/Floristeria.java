@@ -15,17 +15,31 @@ public class Floristeria {
     private String nombre;
     private InterfaceBaseDeDatos baseDeDatos;
 
-    private Floristeria() {
-        this.baseDeDatos = MySQLDB.instanciar(Input.inputString("Nombre de la base de Datos"));
-        nombre = "Floristeria Feliz";
+
+
+
+    // Eugenia  +++
+
+    private Floristeria(String dbName) {
+        this.nombre =dbName;
+        this.baseDeDatos = MySQLDB.instanciar(dbName);
     }
+
     public static Floristeria getInstancia() {
 
         if (instancia == null) {
-            return new Floristeria();
+            String dbName = Input.inputString("Escribe el Nombre de la base de datos a consultar/crear en MySQL: ");
+            instancia = new Floristeria(dbName);
         }
         return instancia;
     }
+
+
+    //Eugenia  ---
+
+
+
+
     public String getNombre() {
         return nombre;
     }
@@ -68,28 +82,28 @@ public class Floristeria {
         }
         return response;
     }
-        public HashMap<Integer, Producto> consultarListaProductosPorTipo (String tipo){
-            return baseDeDatos.consultarProductosFiltrando(tipo);
-        }
-        public HashMap<Integer, Ticket> consultarListaTickets () {
-            return baseDeDatos.consultarTickets();
-        }
-        public float consultarValorTotalInventario () {
-            return baseDeDatos.consultarValorTotalStock();
-        }
-        public float consultarValorTotalVentas () {
-            return baseDeDatos.consultarValorTotalTickets();
-        }
-        public boolean existeProducto(int productoID,int cantidadMinima) throws ProductoNoExiste {
-            boolean returnValue;
-            Producto producto = baseDeDatos.consultarProducto(productoID);
-            if (producto != null) {
-                returnValue = producto.getProductoCantidad() > cantidadMinima;
-            } else {
-                throw new ProductoNoExiste("El id de producto inexistente. Escoja en productos existentes");
-            }
-            return returnValue;
-        }
+    public HashMap<Integer, Producto> consultarListaProductosPorTipo (String tipo){
+        return baseDeDatos.consultarProductosFiltrando(tipo);
     }
+    public HashMap<Integer, Ticket> consultarListaTickets () {
+        return baseDeDatos.consultarTickets();
+    }
+    public float consultarValorTotalInventario () {
+        return baseDeDatos.consultarValorTotalStock();
+    }
+    public float consultarValorTotalVentas () {
+        return baseDeDatos.consultarValorTotalTickets();
+    }
+    public boolean existeProducto(int productoID,int cantidadMinima) throws ProductoNoExiste {
+        boolean returnValue;
+        Producto producto = baseDeDatos.consultarProducto(productoID);
+        if (producto != null) {
+            returnValue = producto.getProductoCantidad() > cantidadMinima;
+        } else {
+            throw new ProductoNoExiste("El id de producto inexistente. Escoja en productos existentes");
+        }
+        return returnValue;
+    }
+}
 
 

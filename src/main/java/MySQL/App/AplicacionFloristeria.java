@@ -4,12 +4,7 @@ import MySQL.Entrada.Input;
 import MySQL.Entrada.Material;
 import MySQL.Excepciones.CantidadExcedida;
 import MySQL.Excepciones.ProductoNoExiste;
-import MySQL.Model.Decoracion;
-import MySQL.Model.Floristeria;
-import MySQL.Model.Producto;
-import MySQL.Model.Flor;
-import MySQL.Model.Arbol;
-import MySQL.Model.Ticket;
+import MySQL.Model.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -18,7 +13,6 @@ public class AplicacionFloristeria {
 
     private static Floristeria floristeria;
     public static void start (){
-
         floristeria = Floristeria.getInstancia();
         Menu.ejecutarMenu();
     }
@@ -40,6 +34,7 @@ public class AplicacionFloristeria {
         float precio = Input.inputFloat("Dime el precio:");
         float altura = Input.inputFloat("Dime la altura:");
         int cantidad = Input.inputInt("Dime la cantidad:");
+        System.out.println("Arbol " + nombre + "  creado correctamente.");
         return new Arbol(floristeria.consultarSiguienteProductoID(), nombre, precio, altura, cantidad);
     }
 
@@ -48,6 +43,7 @@ public class AplicacionFloristeria {
         float precio = Input.inputFloat("Dime el precio:");
         String color = Input.inputString("Dime el color:");
         int cantidad = Input.inputInt("Dime la cantidad:");
+        System.out.println("Flor " + nombre + "  creada correctamente.");
         return new Flor(floristeria.consultarSiguienteProductoID(), nombre, precio, color, cantidad);
     }
 
@@ -56,6 +52,7 @@ public class AplicacionFloristeria {
         float precio = Input.inputFloat("Dime el precio:");
         Material material = Input.inputEnum("Dime el material (madera o plastico)");
         int cantidad = Input.inputInt("Dime la cantidad:");
+        System.out.println("Decoración " + nombre + " creada correctamente.");
         return new Decoracion(floristeria.consultarSiguienteProductoID(), nombre, precio, material, cantidad);
     }
 
