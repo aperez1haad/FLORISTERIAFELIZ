@@ -41,7 +41,7 @@ public class    Menu {
 
         do{
             opcion = Input.inputByte("\n****" + floristeria.getNombre().toUpperCase() + "****\n"
-                    + "\n1. Agregar producto."
+                    + "\n1. Agregar producto/s."
                     + "\n2. Eliminar producto."
                     + "\n3. Listar productos."
                     + "\n4. Consultar valor stock total."

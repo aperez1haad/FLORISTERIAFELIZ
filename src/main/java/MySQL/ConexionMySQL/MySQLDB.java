@@ -201,14 +201,23 @@ public class MySQLDB implements InterfaceBaseDeDatos {
 
     @Override
     public void actualizarCantidadProducto(int id, int nuevaCantidad) {
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate("UPDATE producto SET cantidad = " + nuevaCantidad + " WHERE id = " + id);
+        String query = "UPDATE producto SET cantidad = ? WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, nuevaCantidad);
+            stmt.setInt(2, id);
+            int filasActualizadas = stmt.executeUpdate();
+
+            if (filasActualizadas > 0) {
+                System.out.println("Cantidad de producto actualizada en la base de datos.");
+            } else {
+                System.err.println("No se encontró el producto con el ID especificado.");
+            }
         } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
+            System.err.println("Hubo un error al actualizar la cantidad del producto en la base de datos. Intenta nuevamente.");
             System.err.println(e.getMessage());
         }
     }
+
 
     private void agregarProductoAlTicket(Producto producto, int ticketID) {
         PreparedStatement insertProductOnProductTicketDB;
@@ -401,7 +410,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         float valorTotal = 0;
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT SUM(precio * cantidad) AS valor_total FROM producto");
+            ResultSet rs = stmt.executeQuery("SELECT SUM(precio) AS valor_total FROM producto");
             if (rs.next()) {
                 valorTotal = rs.getFloat("valor_total");
             }
