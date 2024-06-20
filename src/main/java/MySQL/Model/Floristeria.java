@@ -16,10 +16,6 @@ public class Floristeria {
     private InterfaceBaseDeDatos baseDeDatos;
 
 
-
-
-    // Eugenia  +++
-
     private Floristeria(String dbName) {
         this.nombre =dbName;
         this.baseDeDatos = MySQLDB.instanciar(dbName);
@@ -33,10 +29,6 @@ public class Floristeria {
         }
         return instancia;
     }
-
-
-    //Eugenia  ---
-
 
 
 
@@ -72,16 +64,33 @@ public class Floristeria {
     public int consultarSiguienteTicketID() {
         return baseDeDatos.obtenerSiguienteTicketId();
     }
+
     public String eliminarProducto(int productoID, int cantidad) throws CantidadExcedida, ProductoNoExiste {
-        String response;
-        if (existeProducto(productoID, 0)) {
-            Producto productoEliminado = baseDeDatos.eliminarProducto(productoID, cantidad);
-            response = productoEliminado + " ha sido eliminado.";
-        } else {
-            throw new ProductoNoExiste("El id de producto inexistente. Escoja en productos existentes"); // TODO: Escoja en productos existentes.
+        // Consultar el producto en la base de datos por su ID
+        Producto producto = baseDeDatos.consultarProducto(productoID);
+        if (producto == null) {
+            throw new ProductoNoExiste("El producto con ID " + productoID + " no existe.");
         }
-        return response;
+
+        // Comprobar si la cantidad a eliminar es mayor que la disponible
+        if (producto.getProductoCantidad() < cantidad) {
+            throw new CantidadExcedida("No hay suficiente cantidad en el inventario para eliminar.");
+        }
+
+        // Llamar al método para eliminar el producto en la base de datos
+        baseDeDatos.eliminarProducto(productoID, cantidad);
+
+        // Comprobar si la cantidad eliminada es igual a la cantidad actual para decidir el mensaje de retorno
+        if (producto.getProductoCantidad() == cantidad) {
+            return "El producto con ID " + productoID + " ha sido completamente eliminado.";
+        } else {
+            return "Se eliminaron " + cantidad + " unidades del producto con ID " + productoID;
+        }
     }
+
+
+
+
     public HashMap<Integer, Producto> consultarListaProductosPorTipo (String tipo){
         return baseDeDatos.consultarProductosFiltrando(tipo);
     }

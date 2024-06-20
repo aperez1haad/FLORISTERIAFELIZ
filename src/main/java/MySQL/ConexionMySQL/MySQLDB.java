@@ -3,6 +3,7 @@ package MySQL.ConexionMySQL;
 import MySQL.Entrada.Input;
 import MySQL.Entrada.Material;
 import MySQL.Excepciones.CantidadExcedida;
+import MySQL.Excepciones.ProductoNoExiste;
 import MySQL.Model.*;
 
 import java.sql.*;
@@ -268,9 +269,59 @@ public class MySQLDB implements InterfaceBaseDeDatos {
 
     @Override
     public HashMap<Integer, Producto> consultarProductosFiltrando(String tipo) {
-        // Implementar consulta de productos por tipo.
-        return null;
+        HashMap<Integer, Producto> productos = new HashMap<>();
+        try {
+            String query = String.format(
+                    "SELECT p.id, p.nombre, p.precio, p.cantidad, " +
+                            "IFNULL(a.altura, 0) AS altura, f.color, d.material " +
+                            "FROM producto p " +
+                            "LEFT JOIN arbol a ON p.id = a.id " +
+                            "LEFT JOIN flor f ON p.id = f.id " +
+                            "LEFT JOIN decoracion d ON p.id = d.id " +
+                            "WHERE p.tipo = '%s'", tipo);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                Producto producto = null;
+                switch (tipo.toLowerCase()) {
+                    case "arbol":
+                        producto = new Arbol(
+                                rs.getInt("id"),
+                                rs.getString("nombre"),
+                                rs.getFloat("precio"),
+                                rs.getFloat("altura"),
+                                rs.getInt("cantidad")
+                        );
+                        break;
+                    case "flor":
+                        producto = new Flor(
+                                rs.getInt("id"),
+                                rs.getString("nombre"),
+                                rs.getFloat("precio"),
+                                rs.getString("color"),
+                                rs.getInt("cantidad")
+                        );
+                        break;
+                    case "decoracion":
+                        producto = new Decoracion(
+                                rs.getInt("id"),
+                                rs.getString("nombre"),
+                                rs.getFloat("precio"),
+                                Material.valueOf(rs.getString("material")),
+                                rs.getInt("cantidad")
+                        );
+                        break;
+                }
+                if (producto != null) {
+                    productos.put(rs.getInt("id"), producto);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al consultar productos por tipo: " + e.getMessage());
+        }
+        return productos;
     }
+
 
     @Override
     public float consultarValorTotalStock() {
@@ -285,10 +336,54 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     }
 
     @Override
-    public Producto eliminarProducto(int id, int cantidad) throws CantidadExcedida {
-        // Implementar eliminación de producto.
-        return null;
+    public Producto eliminarProducto(int id, int cantidad) throws CantidadExcedida, ProductoNoExiste {
+        // Obtener el producto actual por su ID
+        Producto producto = consultarProducto(id);
+        if (producto == null) {
+            throw new ProductoNoExiste("El producto con ID " + id + " no existe.");
+        }
+
+        int cantidadActual = producto.getProductoCantidad();
+        if (cantidadActual < cantidad) {
+            throw new CantidadExcedida("Cantidad excede el stock actual.");
+        }
+
+        int nuevaCantidad = cantidadActual - cantidad;
+        try (Statement stmt = conn.createStatement()) {
+            if (nuevaCantidad > 0) {
+                // Actualizar la cantidad del producto en la base de datos
+                stmt.executeUpdate("UPDATE producto SET cantidad = " + nuevaCantidad + " WHERE id = " + id);
+            } else {
+                // Eliminar el producto si la cantidad es cero
+                stmt.executeUpdate("DELETE FROM producto WHERE id = " + id);
+                eliminarDetallesProducto(id, producto.getProductoTipo());
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar el producto: " + e.getMessage());
+        }
+        return producto;
     }
+
+    private void eliminarDetallesProducto(int id, String tipo) throws SQLException {
+        String tablaDetalles;
+        switch (tipo.toLowerCase()) {
+            case "arbol":
+                tablaDetalles = "arbol";
+                break;
+            case "flor":
+                tablaDetalles = "flor";
+                break;
+            case "decoracion":
+                tablaDetalles = "decoracion";
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo de producto desconocido: " + tipo);
+        }
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM " + tablaDetalles + " WHERE id = " + id);
+        }
+    }
+
 
     @Override
     public int obtenerSiguienteProductoId() {

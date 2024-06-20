@@ -1,6 +1,7 @@
 package MySQL.ConexionMySQL;
 
 import MySQL.Excepciones.CantidadExcedida;
+import MySQL.Excepciones.ProductoNoExiste;
 import MySQL.Model.Producto;
 import MySQL.Model.Ticket;
 
@@ -19,7 +20,7 @@ public interface InterfaceBaseDeDatos {
     HashMap<Integer, Producto> consultarProductosFiltrando(String tipo);
     float consultarValorTotalStock();
     float consultarValorTotalTickets();
-    Producto eliminarProducto(int id, int cantidad) throws CantidadExcedida;
+    Producto eliminarProducto(int id, int cantidad) throws CantidadExcedida, ProductoNoExiste;
     int obtenerSiguienteProductoId();
     int obtenerSiguienteTicketId();
 

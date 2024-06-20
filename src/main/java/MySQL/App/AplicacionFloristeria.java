@@ -56,15 +56,18 @@ public class AplicacionFloristeria {
         return new Decoracion(floristeria.consultarSiguienteProductoID(), nombre, precio, material, cantidad);
     }
 
-    public static void eliminarProducto (){
+    public static void eliminarProducto() {
         int id = Input.inputInt("ID de producto: ");
         int cantidad = Input.inputInt("Cantidad a retirar: ");
         try {
-            floristeria.eliminarProducto(id, cantidad);
+            String resultado = floristeria.eliminarProducto(id, cantidad);
+            System.out.println(resultado);
         } catch (CantidadExcedida | ProductoNoExiste e) {
             System.out.println(e.getMessage());
         }
     }
+
+
     public static void consultarProductos(){
         System.out.println("\nStock por tipo de producto:");
         consultarArbol(floristeria.consultarListaProductosPorTipo("arbol"));
@@ -76,10 +79,11 @@ public class AplicacionFloristeria {
         stockArbol.values().forEach(producto -> {
             Arbol productoArbol = (Arbol) producto;
             System.out.println("ID: " + productoArbol.getProductoID()
-                    + " | Cantidad: " + productoArbol.getProductoCantidad()
                     + " | Nombre: " + productoArbol.getProductoNombre()
+                    + " | Precio: " + productoArbol.getProductoPrecio()
+                    + " | Cantidad: " + productoArbol.getProductoCantidad()
                     + " | Altura: " + productoArbol.getArbolAltura()
-                    + " | Precio: " + productoArbol.getProductoPrecio());
+            );
 
         });
     }
@@ -88,10 +92,11 @@ public class AplicacionFloristeria {
         stockFlor.values().forEach(producto -> {
             Flor productoFlor = (Flor) producto;
             System.out.println("ID: " + productoFlor.getProductoID()
-                    + " | Cantidad: " + productoFlor.getProductoCantidad()
                     + " | Nombre: " + productoFlor.getProductoNombre()
+                    + " | Precio: " + productoFlor.getProductoPrecio()
+                    + " | Cantidad: " + productoFlor.getProductoCantidad()
                     + " | Color: " + productoFlor.getFlorColor()
-                    + " | Precio: " + productoFlor.getProductoPrecio());
+            );
         });
     }
     private static void consultarDecoracion (HashMap<Integer,Producto> stockDecoracion){
@@ -99,11 +104,11 @@ public class AplicacionFloristeria {
         stockDecoracion.values().forEach(producto -> {
             Decoracion productoDecoracion = (Decoracion) producto;
             System.out.println("ID: " + productoDecoracion.getProductoID()
-                    + " | Cantidad: " + productoDecoracion.getProductoCantidad()
                     + " | Nombre: " + productoDecoracion.getProductoNombre()
+                    + " | Precio: " + productoDecoracion.getProductoPrecio()
+                    + " | Cantidad: " + productoDecoracion.getProductoCantidad()
                     + " | Material: " + productoDecoracion.getDecoracionMaterial()
-                    + " | Precio: " + productoDecoracion.getProductoPrecio());
-
+            );
         });
     }
     public static void consultarValorTotalStock(){
