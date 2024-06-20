@@ -224,19 +224,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
     }
 
-    @Override
-    public HashMap<Integer, Producto> consultarProductos() {
-        HashMap<Integer, Producto> productos = new HashMap<>();
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(QueriesSQL.GET_PRODUCTOS);
-            productos = generaMapaProducto(rs);
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-        return productos;
-    }
+
 
     @Override
     public HashMap<Integer, Ticket> consultarTickets() {
@@ -255,11 +243,96 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         return tickets;
     }
 
+
+
+    @Override
+    public HashMap<Integer, Producto> consultarProductos() {
+        HashMap<Integer, Producto> productos = new HashMap<>();
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(QueriesSQL.GET_PRODUCTOS);
+            productos = generaMapaProducto(rs);
+        } catch (SQLException e) {
+            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
+            System.err.println(e.getMessage());
+        }
+        return productos;
+    }
+
+
+    private HashMap<Integer, Producto> generaMapaProducto(ResultSet rs) throws SQLException {
+        HashMap<Integer, Producto> productos = new HashMap<>();
+        while (rs.next()) {
+            String tipo = rs.getString("tipo").toLowerCase();
+            int id = rs.getInt("id");
+            Producto producto = switch (tipo) {
+                case "arbol" -> new Arbol(
+                        id,
+                        rs.getString("nombre"),
+                        rs.getFloat("precio"),
+                        rs.getFloat("altura"),
+                        rs.getInt("cantidad")
+                );
+                case "flor" -> new Flor(
+                        id,
+                        rs.getString("nombre"),
+                        rs.getFloat("precio"),
+                        rs.getString("color"),
+                        rs.getInt("cantidad")
+                );
+                case "decoracion" -> new Decoracion(
+                        id,
+                        rs.getString("nombre"),
+                        rs.getFloat("precio"),
+                        Material.valueOf(rs.getString("material")),
+                        rs.getInt("cantidad")
+                );
+                default -> throw new IllegalStateException("Unexpected value: " + tipo);
+            };
+            productos.put(id, producto);
+        }
+        return productos;
+    }
+
+
+
+
     @Override
     public Producto consultarProducto(int id) {
-        // Implementar consulta de producto.
-        return null;
+        Producto producto = null;
+        try {
+            String query = "SELECT p.id, p.nombre, p.precio, p.cantidad, p.tipo, " +
+                    "IFNULL(a.altura, 0) AS altura, f.color, d.material " +
+                    "FROM producto p " +
+                    "LEFT JOIN arbol a ON p.id = a.id " +
+                    "LEFT JOIN flor f ON p.id = f.id " +
+                    "LEFT JOIN decoracion d ON p.id = d.id " +
+                    "WHERE p.id = " + id;
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                String tipo = rs.getString("tipo").toLowerCase();
+                switch (tipo) {
+                    case "arbol":
+                        producto = new Arbol(id, rs.getString("nombre"), rs.getFloat("precio"),
+                                rs.getFloat("altura"), rs.getInt("cantidad"));
+                        break;
+                    case "flor":
+                        producto = new Flor(id, rs.getString("nombre"), rs.getFloat("precio"),
+                                rs.getString("color"), rs.getInt("cantidad"));
+                        break;
+                    case "decoracion":
+                        producto = new Decoracion(id, rs.getString("nombre"), rs.getFloat("precio"),
+                                Material.valueOf(rs.getString("material")), rs.getInt("cantidad"));
+                        break;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al consultar el producto: " + e.getMessage());
+        }
+        return producto;
     }
+
 
     @Override
     public Ticket consultarTicket(int id) {
@@ -325,9 +398,19 @@ public class MySQLDB implements InterfaceBaseDeDatos {
 
     @Override
     public float consultarValorTotalStock() {
-        // Implementar consulta del valor total del inventario.
-        return 0;
+        float valorTotal = 0;
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT SUM(precio * cantidad) AS valor_total FROM producto");
+            if (rs.next()) {
+                valorTotal = rs.getFloat("valor_total");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al consultar el valor total del stock: " + e.getMessage());
+        }
+        return valorTotal;
     }
+
 
     @Override
     public float consultarValorTotalTickets() {
@@ -337,7 +420,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
 
     @Override
     public Producto eliminarProducto(int id, int cantidad) throws CantidadExcedida, ProductoNoExiste {
-        // Obtener el producto actual por su ID
         Producto producto = consultarProducto(id);
         if (producto == null) {
             throw new ProductoNoExiste("El producto con ID " + id + " no existe.");
@@ -351,10 +433,8 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         int nuevaCantidad = cantidadActual - cantidad;
         try (Statement stmt = conn.createStatement()) {
             if (nuevaCantidad > 0) {
-                // Actualizar la cantidad del producto en la base de datos
                 stmt.executeUpdate("UPDATE producto SET cantidad = " + nuevaCantidad + " WHERE id = " + id);
             } else {
-                // Eliminar el producto si la cantidad es cero
                 stmt.executeUpdate("DELETE FROM producto WHERE id = " + id);
                 eliminarDetallesProducto(id, producto.getProductoTipo());
             }
@@ -363,6 +443,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return producto;
     }
+
 
     private void eliminarDetallesProducto(int id, String tipo) throws SQLException {
         String tablaDetalles;
@@ -395,24 +476,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         return generarSiguienteId("ticket");
     }
 
-    private HashMap<Integer, Producto> generaMapaProducto(ResultSet rs) throws SQLException {
-        HashMap<Integer, Producto> productos = new HashMap<>();
-        while (rs.next()) {
-            String tipo = rs.getString("tipo").toLowerCase();
-            int id = rs.getInt("id");
-            Producto producto = switch (tipo) {
-                case "arbol" -> new Arbol(id, rs.getString("nombre"), rs.getFloat("precio"),
-                        (float) rs.getInt("cantidad"), (int) rs.getFloat("altura"));
-                case "flor" -> new Flor(id, rs.getString("nombre"), rs.getFloat("precio"),
-                        rs.getString("color"), rs.getInt("cantidad"));
-                case "decoracion" -> new Decoracion(id, rs.getString("nombre"), rs.getFloat("precio"),
-                        Material.valueOf(rs.getString("material")), rs.getInt("cantidad"));
-                default -> throw new IllegalStateException("Unexpected value: " + tipo);
-            };
-            productos.put(id, producto);
-        }
-        return productos;
-    }
+
 
     private int generarSiguienteId(String nombreTabla) {
         try {
