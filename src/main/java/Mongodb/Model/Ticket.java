@@ -1,5 +1,4 @@
-package MySQL.Model;
-
+package Mongodb.Model;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ public class Ticket implements Serializable {
     private float ticketTotal = 0.0F;
     //private static int proximoID = 1;
 
-    public Ticket(int ticketID, LocalDate fecha) {
+    public Ticket(int ticketID) {
         this.ticketID = ticketID;
         ticketDate = LocalDate.now();
         productosVendidos = new HashMap<>();

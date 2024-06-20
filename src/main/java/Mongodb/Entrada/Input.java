@@ -1,4 +1,4 @@
-package MySQL.Entrada;
+package Mongodb.Entrada;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -53,9 +53,8 @@ public class Input {
         boolean okey = false;
         do {
             System.out.println(pregunta);
-
             try {
-                response = input.nextLine().trim();       //Eugenia adadir .trim()
+                response = input.nextLine();
                 if (response.isEmpty()) {
                     throw new Exception(EMPTY_STRING_ERR_MSG);
                 } else {
@@ -148,26 +147,6 @@ public class Input {
             }
         } while (!okey);
 
-        return response;
-    }
-    public static String inputBaseDeDatos (String pregunta) {
-        String response = "";
-        boolean okey = false;
-        do {
-            System.out.println(pregunta);
-            response = input.nextLine();
-            try {
-                if (response.isEmpty()|| (!response.equalsIgnoreCase("Mongodb")&&!response.equalsIgnoreCase("MySQL"))) {
-                    throw new Exception(EMPTY_STRING_ERR_MSG);
-                }
-                else {
-                    okey = true;
-                    System.out.println("Base de datos no encontrada");
-                }
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
-            }
-        } while (!okey);
         return response;
     }
 

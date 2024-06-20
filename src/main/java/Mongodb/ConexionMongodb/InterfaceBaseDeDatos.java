@@ -1,13 +1,12 @@
-package MySQL.ConexionMySQL;
+package Mongodb.ConexionMongodb;
 
-import MySQL.Excepciones.CantidadExcedida;
-import MySQL.Model.Producto;
-import MySQL.Model.Ticket;
+import Mongodb.Excepciones.CantidadExcedida;
+import Mongodb.Model.Producto;
+import Mongodb.Model.Ticket;
 
 import java.util.HashMap;
 
 public interface InterfaceBaseDeDatos {
-
 
     void agregarProducto(Producto producto);
     Ticket agregarTicket(Ticket ticket);

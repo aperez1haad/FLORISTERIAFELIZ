@@ -1,6 +1,6 @@
-package MySQL.Model;
+package Mongodb.Model;
 
-import MySQL.Entrada.Material;
+import Mongodb.Entrada.Material;
 
 public class Decoracion extends Producto {
 

@@ -1,10 +1,11 @@
-package MySQL.App;
+package Mongodb.App;
 
-import MySQL.Entrada.Input;
-import MySQL.Model.Floristeria;
-import static MySQL.App.AplicacionFloristeria.*;
+import Mongodb.Entrada.Input;
+import Mongodb.Model.Floristeria;
 
-public class    Menu {
+import static Mongodb.App.AplicacionFloristeria.*;
+
+public class Menu {
 
     private static Floristeria floristeria = Floristeria.getInstancia();
     public static void ejecutarMenu(){

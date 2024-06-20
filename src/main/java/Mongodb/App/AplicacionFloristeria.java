@@ -1,4 +1,12 @@
-package MySQL.App;
+package Mongodb.App;
+
+import Mongodb.Entrada.Input;
+import Mongodb.Entrada.Material;
+import Mongodb.Excepciones.CantidadExcedida;
+import Mongodb.Excepciones.ProductoNoExiste;
+import Mongodb.Model.*;
+
+import java.util.HashMap;
 
 import MySQL.Model.Floristeria;
 
@@ -23,28 +31,28 @@ public class AplicacionFloristeria {
         }
     }
 
-    public static Producto_Arbol crearArbol() {
+    public static Arbol crearArbol() {
         String nombre = Input.inputString("Dime el nombre del árbol:");
         float precio = Input.inputFloat("Dime el precio:");
         float altura = Input.inputFloat("Dime la altura:");
         int cantidad = Input.inputInt("Dime la cantidad:");
-        return new Producto_Arbol(floristeria.consultarSiguienteProductoID(), nombre, precio, altura, cantidad);
+        return new Arbol(floristeria.consultarSiguienteProductoID(), nombre, precio, altura, cantidad);
     }
 
-    public static Producto_Flor crearFlor() {
+    public static Flor crearFlor() {
         String nombre = Input.inputString("Dime el nombre de la flor:");
         float precio = Input.inputFloat("Dime el precio:");
         String color = Input.inputString("Dime el color:");
         int cantidad = Input.inputInt("Dime la cantidad:");
-        return new Producto_Flor(floristeria.consultarSiguienteProductoID(), nombre, precio, color, cantidad);
+        return new Flor(floristeria.consultarSiguienteProductoID(), nombre, precio, color, cantidad);
     }
 
-    public static Producto_Decoracion crearDecoracion() {
+    public static Decoracion crearDecoracion() {
         String nombre = Input.inputString("Dime el tipo de decoración:");
         float precio = Input.inputFloat("Dime el precio:");
         Material material = Input.inputEnum("Dime el material (madera o plastico)");
         int cantidad = Input.inputInt("Dime la cantidad:");
-        return new Producto_Decoracion(floristeria.consultarSiguienteProductoID(), nombre, precio, material, cantidad);
+        return new Decoracion(floristeria.consultarSiguienteProductoID(), nombre, precio, material, cantidad);
     }
 
     public static void eliminarProducto (){
@@ -65,7 +73,7 @@ public class AplicacionFloristeria {
     private static void consultarArbol (HashMap<Integer, Producto> stockArbol){
         System.out.println("***ARBOL***:\n");
         stockArbol.values().forEach(producto -> {
-            Producto_Arbol productoArbol = (Producto_Arbol) producto;
+            Arbol productoArbol = (Arbol) producto;
             System.out.println("ID: " + productoArbol.getProductoID()
                     + " | Cantidad: " + productoArbol.getProductoCantidad()
                     + " | Nombre: " + productoArbol.getProductoNombre()
@@ -77,7 +85,7 @@ public class AplicacionFloristeria {
     private static void consultarFlor (HashMap<Integer, Producto> stockFlor){
         System.out.println("\n***FLOR***:\n");
         stockFlor.values().forEach(producto -> {
-            Producto_Flor productoFlor = (Producto_Flor) producto;
+            Flor productoFlor = (Flor) producto;
             System.out.println("ID: " + productoFlor.getProductoID()
                     + " | Cantidad: " + productoFlor.getProductoCantidad()
                     + " | Nombre: " + productoFlor.getProductoNombre()
@@ -85,10 +93,10 @@ public class AplicacionFloristeria {
                     + " | Precio: " + productoFlor.getProductoPrecio());
         });
     }
-    private static void consultarDecoracion (HashMap<Integer,Producto> stockDecoracion){
+    private static void consultarDecoracion (HashMap<Integer, Producto> stockDecoracion){
         System.out.println("\n***DECORACION***:\n");
         stockDecoracion.values().forEach(producto -> {
-            Producto_Decoracion productoDecoracion = (Producto_Decoracion) producto;
+            Decoracion productoDecoracion = (Decoracion) producto;
             System.out.println("ID: " + productoDecoracion.getProductoID()
                     + " | Cantidad: " + productoDecoracion.getProductoCantidad()
                     + " | Nombre: " + productoDecoracion.getProductoNombre()

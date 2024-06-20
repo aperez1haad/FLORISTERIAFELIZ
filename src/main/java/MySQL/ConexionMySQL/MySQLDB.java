@@ -1,63 +1,146 @@
 package MySQL.ConexionMySQL;
+
+import MySQL.Entrada.Input;
+import MySQL.Entrada.Material;
+import MySQL.Excepciones.CantidadExcedida;
+import MySQL.Model.*;
+
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class MySQLDB {
-    private static String CONNECTION_URL;
+public class MySQLDB implements InterfaceBaseDeDatos {
     private static MySQLDB instancia;
+    private String dbName; // Nombre de la base de datos introducido por el usuario
     private int nextProductoId;
     private int nextTicketId;
+    private static Connection conn;
 
-    private MySQLDB() {
-        CONNECTION_URL = obtenerConexion();
-        nextProductoId = generarSiguienteId("producto");
-        nextTicketId = generarSiguienteId("ticket");
+    private MySQLDB(String dbName) {
+        this.dbName = dbName;
+        if (obtenerConexion(dbName)) {
+            nextProductoId = generarSiguienteId("producto");
+            nextTicketId = generarSiguienteId("ticket");
+        } else {
+            System.err.println("Error al establecer la conexión.");
+        }
     }
-    public static MySQLDB instanciar() {
+
+    public static MySQLDB instanciar(String dbName) {
         if (instancia == null) {
-            instancia = new MySQLDB();
+            instancia = new MySQLDB(dbName);
         }
         return instancia;
     }
-    public String obtenerConexion(){
-        String connection;
-        boolean salir = false;
-        String usuario;
-        String password;
 
-        do {
-            usuario = Input.inputString("Dime tu usuario MySQL:");
-            password = Input.inputString("Dime tu password MySQL:");
-            connection = "jdbc:mysql://localhost/t3n2floristeria?user="+usuario+"&password="+password;
 
-            try (Connection conn = DriverManager.getConnection(connection)) {
-                System.out.println("La conexión se ha establecido.");
-                salir = true;
+    public boolean obtenerConexion(String dbName) {
+        boolean conexionEstablecida = false;
+        while (!conexionEstablecida) {
 
-            } catch (SQLException e){
-                System.err.println("Usuario y/o contraseña no válidos.");
-                System.err.println(e.getMessage());
+            String usuario = Input.inputString("Dime tu usuario MySQL:");
+            String password = Input.inputString("Dime tu password MySQL:");
+
+            try {
+                // Intenta conectar a la base de datos
+                String url = "jdbc:mysql://localhost:3306/?user=" + usuario + "&password=" + password;
+                conn = DriverManager.getConnection(url);
+                System.out.println("Conexión a MySQL establecida.");
+
+                // Verifica si la base de datos existe
+                ResultSet resultSet = conn.getMetaData().getCatalogs();
+                boolean dbExists = false;
+                while (resultSet.next()) {
+                    if (resultSet.getString(1).equalsIgnoreCase(this.dbName)) { // Usa el nombre proporcionado
+                        dbExists = true;
+                        break;
+                    }
+                }
+
+                // Si no existe, crea la base de datos
+                if (!dbExists) {
+                    System.out.println("Base de datos no encontrada, creando base de datos...");
+                    try (Statement stmt = conn.createStatement()) {
+                        stmt.executeUpdate("CREATE DATABASE " + this.dbName);
+                        System.out.println("Base de datos creada exitosamente.");
+                    }
+                }
+
+
+                // Conecta a la base de datos específica
+                String dbUrl = "jdbc:mysql://localhost:3306/" + dbName + "?user=" + usuario + "&password=" + password;
+                conn = DriverManager.getConnection(dbUrl);
+
+
+                System.out.println("Conectado a la base de datos " + dbName);  //Eugenia
+
+
+
+                // Crear tablas si no existen
+                crearTablas(conn);
+
+                conexionEstablecida = true;
+
+            } catch (SQLException e) {
+                System.err.println("Error al conectar a la base de datos: " + e.getMessage());
+                System.out.println("Por favor, intenta nuevamente con las credenciales correctas.");
             }
-
-        } while (!salir);
-
-        return connection;
+        }
+        return true;
     }
+
+
+    private void crearTablas(Connection conn) {
+        // Crear las tablas si no existen
+        String createProductoTable = "CREATE TABLE IF NOT EXISTS producto (" +
+                "id INT PRIMARY KEY AUTO_INCREMENT, " +  // Añadido AUTO_INCREMENT
+                "nombre VARCHAR(50), " +
+                "precio FLOAT, " +
+                "tipo VARCHAR(50), " +
+                "cantidad INT)";
+        String createArbolTable = "CREATE TABLE IF NOT EXISTS arbol (" +
+                "id INT PRIMARY KEY, " +
+                "altura FLOAT)";
+        String createFlorTable = "CREATE TABLE IF NOT EXISTS flor (" +
+                "id INT PRIMARY KEY, " +
+                "color VARCHAR(50))";
+        String createDecoracionTable = "CREATE TABLE IF NOT EXISTS decoracion (" +
+                "id INT PRIMARY KEY, " +
+                "material VARCHAR(50))";
+        String createTicketTable = "CREATE TABLE IF NOT EXISTS ticket (" +
+                "id INT PRIMARY KEY AUTO_INCREMENT, " +  // Añadido AUTO_INCREMENT
+                "fecha DATE)";
+        String createProductoTicketTable = "CREATE TABLE IF NOT EXISTS producto_ticket (" +
+                "ticketId INT, " +
+                "productoId INT, " +
+                "cantidad INT, " +
+                "PRIMARY KEY(ticketId, productoId))";
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createProductoTable);
+            stmt.executeUpdate(createArbolTable);
+            stmt.executeUpdate(createFlorTable);
+            stmt.executeUpdate(createDecoracionTable);
+            stmt.executeUpdate(createTicketTable);
+            stmt.executeUpdate(createProductoTicketTable);
+            System.out.println("Tablas creadas o verificadas exitosamente.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear las tablas: " + e.getMessage());
+        }
+    }
+
+
     @Override
     public void agregarProducto(Producto producto) {
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL) ) {
+        try {
             Statement stmt = conn.createStatement();
-
             ResultSet rs = stmt.executeQuery(String.format(
                     "SELECT * FROM producto WHERE id = %d", producto.getProductoID()));
 
             if (rs.next()) {
                 int nuevaCantidad = producto.getProductoCantidad() + rs.getInt("cantidad");
                 actualizarCantidadProducto(producto.getProductoID(), nuevaCantidad);
-
             } else {
-
                 String insertarProducto = String.format(Locale.US,
                         "INSERT INTO producto VALUES (%d, '%s', %f, '%s', %d)",
                         producto.getProductoID(), producto.getProductoNombre(),
@@ -67,22 +150,24 @@ public class MySQLDB {
 
                 String tipo = producto.getProductoTipo().toLowerCase();
 
-                switch(tipo){
-                    case "arbol":
-                        String insertarArbol = String.format(Locale.US, "INSERT INTO arbol VALUES (%d, %f)",
-                                producto.getProductoID(), ((Producto_Arbol) producto).getArbolAltura());
+                switch (tipo) {
+                    case "arbol" -> {
+                        String insertarArbol = String.format(Locale.US,
+                                "INSERT INTO arbol (id, altura) VALUES (%d, %f)",
+                                producto.getProductoID(), ((Arbol) producto).getArbolAltura());
                         stmt.executeUpdate(insertarArbol);
-                        break;
-                    case "flor":
-                        String insertarFlor = String.format(Locale.US, "INSERT INTO flor VALUES (%d, '%s')",
-                                producto.getProductoID(), ((Producto_Flor) producto).getFlorColor());
+                    }
+                    case "flor" -> {
+                        String insertarFlor = String.format(Locale.US,
+                                "INSERT INTO flor (id, color) VALUES (%d, '%s')",
+                                producto.getProductoID(), ((Flor) producto).getFlorColor());
                         stmt.executeUpdate(insertarFlor);
-                        break;
-                    case "decoracion":
-                        String insertarDecoracion = String.format("INSERT INTO decoracion VALUES (%d,'%s')",
-                                producto.getProductoID(), ((Producto_Decoracion) producto).getDecoracionMaterial());
+                    }
+                    case "decoracion" -> {
+                        String insertarDecoracion = String.format("INSERT INTO decoracion (id, material) VALUES (%d,'%s')",
+                                producto.getProductoID(), ((Decoracion) producto).getDecoracionMaterial());
                         stmt.executeUpdate(insertarDecoracion);
-                        break;
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -90,18 +175,20 @@ public class MySQLDB {
             System.err.println(e.getMessage());
         }
     }
+
     @Override
     public Ticket agregarTicket(Ticket ticket) {
         PreparedStatement insertTicketOnTicketDB;
 
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL)) {
+        try {
             insertTicketOnTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_TICKET);
             insertTicketOnTicketDB.setInt(1, ticket.getTicketID());
             insertTicketOnTicketDB.setDate(2, Date.valueOf(ticket.getTicketDate()));
             insertTicketOnTicketDB.execute();
 
-            ticket.getProductosVendidos().values().forEach(producto ->
-                    agregarProductoAlTicket(producto, ticket.getTicketID(), conn));
+            for (Producto producto : ticket.getProductosVendidos().values()) {
+                agregarProductoAlTicket(producto, ticket.getTicketID());
+            }
 
         } catch (SQLException e) {
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
@@ -110,17 +197,19 @@ public class MySQLDB {
 
         return ticket;
     }
+
     @Override
     public void actualizarCantidadProducto(int id, int nuevaCantidad) {
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL)) {
+        try {
             Statement stmt = conn.createStatement();
-            stmt.executeUpdate("UPDATE producto SET cantidad = " + nuevaCantidad + " WHERE producto.id = " + id);
+            stmt.executeUpdate("UPDATE producto SET cantidad = " + nuevaCantidad + " WHERE id = " + id);
         } catch (SQLException e) {
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
             System.err.println(e.getMessage());
         }
     }
-    private void agregarProductoAlTicket(Producto producto, int ticketID, Connection conn) {
+
+    private void agregarProductoAlTicket(Producto producto, int ticketID) {
         PreparedStatement insertProductOnProductTicketDB;
         try {
             insertProductOnProductTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_PRODUCTO_TICKET);
@@ -128,16 +217,16 @@ public class MySQLDB {
             insertProductOnProductTicketDB.setInt(2, producto.getProductoID());
             insertProductOnProductTicketDB.setInt(3, producto.getProductoCantidad());
             insertProductOnProductTicketDB.execute();
-
-        } catch (SQLException e){
+        } catch (SQLException e) {
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
             System.err.println(e.getMessage());
         }
     }
+
     @Override
     public HashMap<Integer, Producto> consultarProductos() {
         HashMap<Integer, Producto> productos = new HashMap<>();
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL) ) {
+        try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(QueriesSQL.GET_PRODUCTOS);
             productos = generaMapaProducto(rs);
@@ -147,56 +236,16 @@ public class MySQLDB {
         }
         return productos;
     }
-    @Override
-    public Producto consultarProducto(int id) {
-        Producto producto = null;
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL)) {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(QueriesSQL.GET_PRODUCTOS +
-                    "WHERE producto.id = " + id);
-            if (rs.next()) {
-                producto = switch (rs.getString("tipo").toLowerCase()) {
-                    case "arbol" -> new Producto_Arbol(
-                            rs.getInt("id"),
-                            rs.getString("nombre"),
-                            rs.getFloat("precio"),
-                            rs.getFloat("altura"),
-                            rs.getInt("cantidad"));
-                    case "flor" -> new Producto_Flor(
-                            rs.getInt("id"),
-                            rs.getString("nombre"),
-                            rs.getFloat("precio"),
-                            rs.getString("color"),
-                            rs.getInt("cantidad"));
-                    case "decoracion" -> new Producto_Decoracion(
-                            rs.getInt("id"),
-                            rs.getString("nombre"),
-                            rs.getFloat("precio"),
-                            Material.valueOf(rs.getString("material")),
-                            rs.getInt("cantidad"));
-                    default -> producto;
-                };
-            }
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-        return producto;
-    }
+
     @Override
     public HashMap<Integer, Ticket> consultarTickets() {
         HashMap<Integer, Ticket> tickets = new HashMap<>();
-        Ticket ticket;
-        int id;
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL)) {
+        try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM ticket");
+            ResultSet rs = stmt.executeQuery(QueriesSQL.LISTAR_TICKETS);
             while (rs.next()) {
-                id = rs.getInt("id");
-                ticket = new Ticket(id);
-                ticket.setTicketDate(rs.getDate("fecha").toLocalDate());
-                consultarProductosTicket(ticket, conn);
-                tickets.put(id, ticket);
+                Ticket ticket = new Ticket(rs.getInt("id"), rs.getDate("fecha").toLocalDate());
+                tickets.put(ticket.getTicketID(), ticket);
             }
         } catch (SQLException e) {
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
@@ -204,191 +253,82 @@ public class MySQLDB {
         }
         return tickets;
     }
+
+    @Override
+    public Producto consultarProducto(int id) {
+        // Implementar consulta de producto.
+        return null;
+    }
+
     @Override
     public Ticket consultarTicket(int id) {
-        Ticket ticket = null;
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL) ) {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM ticket " +
-                    "WHERE ticket.id = " + id);
-            if(rs.next()) {
-                ticket = new Ticket(id);
-                ticket.setTicketDate(rs.getDate("fecha").toLocalDate());
-                consultarProductosTicket(ticket, conn);
-            }
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-        return ticket;
+        // Implementar consulta de ticket.
+        return null;
     }
-    private void consultarProductosTicket(Ticket ticket, Connection conn) {
-        int id = ticket.getTicketID();
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery( QueriesSQL.CONSULTAR_PRODUCTOS_TICKET + id);
-            while (rs.next()) {
-                switch (rs.getString("tipo").toLowerCase()) {
-                    case "arbol":
-                        ticket.agregarProductoAlTicket(new Producto_Arbol(
-                                rs.getInt("id"),
-                                rs.getString("nombre"),
-                                rs.getFloat("precio"),
-                                rs.getFloat("altura"),
-                                rs.getInt("producto_ticket.cantidad")));
-                        break;
-                    case "flor":
-                        ticket.agregarProductoAlTicket(new Producto_Flor(
-                                rs.getInt("id"),
-                                rs.getString("nombre"),
-                                rs.getFloat("precio"),
-                                rs.getString("color"),
-                                rs.getInt("producto_ticket.cantidad")));
-                        break;
-                    case "decoracion":
-                        ticket.agregarProductoAlTicket(new Producto_Decoracion(
-                                rs.getInt("id"),
-                                rs.getString("nombre"),
-                                rs.getFloat("precio"),
-                                Material.valueOf(rs.getString("material")),
-                                rs.getInt("producto_ticket.cantidad")));
-                        break;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-    }
+
     @Override
     public HashMap<Integer, Producto> consultarProductosFiltrando(String tipo) {
-        HashMap<Integer, Producto> productos = new HashMap<>();
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL) ) {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(QueriesSQL.GET_PRODUCTOS +
-                    "WHERE producto.tipo = \"" + tipo + "\"");
-            productos = generaMapaProducto(rs);
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-        return productos;
+        // Implementar consulta de productos por tipo.
+        return null;
     }
+
     @Override
     public float consultarValorTotalStock() {
-        float valorTotal = 0;
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL)) {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT SUM(precio * cantidad) AS sumaTotal FROM producto");
-            if (rs.next()) {
-                valorTotal = rs.getFloat("sumaTotal");
-            }
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-        return valorTotal;
+        // Implementar consulta del valor total del inventario.
+        return 0;
     }
+
     @Override
     public float consultarValorTotalTickets() {
-        float valorTotal = 0;
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL)) {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(QueriesSQL.CONSULTAR_VALOR_TOTAL_TICKETS);
-            if (rs.next()) {
-                valorTotal = rs.getFloat("sumaTotal");
-            }
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-        return valorTotal;
+        // Implementar consulta del valor total de los tickets.
+        return 0;
     }
+
     @Override
-    public Producto eliminarProducto(int id, int cantidadEliminar) throws CantidadExcedida {
-        Producto producto = consultarProducto(id);
-        int cantidadActual = producto.getProductoCantidad();
-
-        if (cantidadActual >= cantidadEliminar) {
-            actualizarCantidadProducto(id, cantidadActual - cantidadEliminar);
-            producto.reducirProductoCantidad(cantidadEliminar);
-        } else {
-            throw new CantidadExcedida("La cantidad indicada excede la cantidad en stock.");
-        }
-        return producto;
+    public Producto eliminarProducto(int id, int cantidad) throws CantidadExcedida {
+        // Implementar eliminación de producto.
+        return null;
     }
-    //Para borrar definitivamente el producto en base de datos y que no quede a 0.
-    public void eliminarProductoDefinitivo (int id){
 
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL) ) {
-            PreparedStatement preparedStatement = conn.prepareStatement(QueriesSQL.DELETE_PRODUCTO);
-            preparedStatement.setInt(1, id);
-
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-    }
     @Override
     public int obtenerSiguienteProductoId() {
-        nextProductoId++;
-        return nextProductoId;
+        return generarSiguienteId("producto");
     }
+
     @Override
     public int obtenerSiguienteTicketId() {
-        nextTicketId++;
-        return nextTicketId;
+        return generarSiguienteId("ticket");
     }
-    private int generarSiguienteId(String table) {
-        int id = 1;
-        try (Connection conn = DriverManager.getConnection(CONNECTION_URL) ) {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT MAX(id) FROM " + table);
-            if (rs.next()) {
-                id = rs.getInt("MAX(id)");
-            }
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-        return id;
-    }
-    private HashMap<Integer, Producto> generaMapaProducto(ResultSet rs) {
+
+    private HashMap<Integer, Producto> generaMapaProducto(ResultSet rs) throws SQLException {
         HashMap<Integer, Producto> productos = new HashMap<>();
-        try {
-            while (rs.next()) {
-                switch (rs.getString("tipo").toLowerCase()) {
-                    case "arbol":
-                        productos.put(rs.getInt("id"), new Producto_Arbol(
-                                rs.getInt("id"),
-                                rs.getString("nombre"),
-                                rs.getFloat("precio"),
-                                rs.getFloat("altura"),
-                                rs.getInt("cantidad")));
-                        break;
-                    case "flor":
-                        productos.put(rs.getInt("id"), new Producto_Flor(
-                                rs.getInt("id"),
-                                rs.getString("nombre"),
-                                rs.getFloat("precio"),
-                                rs.getString("color"),
-                                rs.getInt("cantidad")));
-                        break;
-                    case "decoracion":
-                        productos.put(rs.getInt("id"), new Producto_Decoracion(
-                                rs.getInt("id"),
-                                rs.getString("nombre"),
-                                rs.getFloat("precio"),
-                                Material.valueOf(rs.getString("material")),
-                                rs.getInt("cantidad")));
-                        break;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
+        while (rs.next()) {
+            String tipo = rs.getString("tipo").toLowerCase();
+            int id = rs.getInt("id");
+            Producto producto = switch (tipo) {
+                case "arbol" -> new Arbol(id, rs.getString("nombre"), rs.getFloat("precio"),
+                        (float) rs.getInt("cantidad"), (int) rs.getFloat("altura"));
+                case "flor" -> new Flor(id, rs.getString("nombre"), rs.getFloat("precio"),
+                        rs.getString("color"), rs.getInt("cantidad"));
+                case "decoracion" -> new Decoracion(id, rs.getString("nombre"), rs.getFloat("precio"),
+                        Material.valueOf(rs.getString("material")), rs.getInt("cantidad"));
+                default -> throw new IllegalStateException("Unexpected value: " + tipo);
+            };
+            productos.put(id, producto);
         }
         return productos;
     }
 
+    private int generarSiguienteId(String nombreTabla) {
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(String.format("SELECT MAX(id) FROM %s", nombreTabla));
+            if (rs.next()) {
+                return rs.getInt(1) + 1;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al generar el siguiente ID para " + nombreTabla + ": " + e.getMessage());
+        }
+        return 1;
+    }
 }

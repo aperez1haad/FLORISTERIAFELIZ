@@ -1,5 +1,4 @@
-package MySQL.Model;
-
+package Mongodb.Model;
 
 public class Arbol extends Producto {
 
@@ -9,7 +8,7 @@ public class Arbol extends Producto {
     public Arbol(int productoID, String productoNombre, float productoPrecio, float arbolAltura, int productoCantidad) {
         super(productoID, productoNombre, productoPrecio, productoCantidad);
         this.arbolAltura = arbolAltura;
-        super.setProductoTipo("Arbol");        // Eugenia  corectar Árbol por Arbol
+        super.setProductoTipo("Arbol");
 
     }
 

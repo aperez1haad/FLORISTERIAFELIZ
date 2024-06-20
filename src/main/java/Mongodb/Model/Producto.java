@@ -1,4 +1,4 @@
-package MySQL.Model;
+package Mongodb.Model;
 
 import java.io.Serializable;
 

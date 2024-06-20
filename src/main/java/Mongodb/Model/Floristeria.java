@@ -1,109 +1,104 @@
-package MySQL.Model;
+package Mongodb.Model;
 
-import MySQL.ConexionMySQL.InterfaceBaseDeDatos;
-import MySQL.ConexionMySQL.MySQLDB;
-import MySQL.Entrada.Input;
-import MySQL.Excepciones.CantidadExcedida;
-import MySQL.Excepciones.ProductoNoExiste;
+import Mongodb.ConexionMongodb.InterfaceBaseDeDatos;
+import Mongodb.ConexionMongodb.MongoDB;
+import Mongodb.Excepciones.CantidadExcedida;
+import Mongodb.Excepciones.ProductoNoExiste;
 
 import java.util.HashMap;
-import java.util.Scanner;
 
 public class Floristeria {
-
     private static Floristeria instancia = null;
     private String nombre;
     private InterfaceBaseDeDatos baseDeDatos;
 
-
-
-
-    // Eugenia  +++
-
-    private Floristeria(String dbName) {
-        this.nombre =dbName;
-        this.baseDeDatos = MySQLDB.instanciar(dbName);
+    private Floristeria() {
+        this.baseDeDatos = MongoDB.instanciar();
+        nombre = "Landful";
     }
 
     public static Floristeria getInstancia() {
 
         if (instancia == null) {
-            String dbName = Input.inputString("Escribe el Nombre de la base de datos a consultar/crear en MySQL: ");
-            instancia = new Floristeria(dbName);
+
+            return new Floristeria();
         }
         return instancia;
     }
 
-
-    //Eugenia  ---
-
-
-
+    // Getters y Setters.
 
     public String getNombre() {
         return nombre;
     }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
     public InterfaceBaseDeDatos getBaseDeDatos() {
         return baseDeDatos;
     }
+
     public void setBaseDeDatos(InterfaceBaseDeDatos baseDeDatos) {
         this.baseDeDatos = baseDeDatos;
     }
+
     // Métodos propios.
 
     public void agregarProducto(Producto producto) {
         baseDeDatos.agregarProducto(producto);
     }
-    public void agregarCantidadProducto(int id, int nuevaCantidad) {
+
+    public void agregarCantidadProducto(int id, int nuevaCantidad){
         baseDeDatos.actualizarCantidadProducto(id, nuevaCantidad);
     }
     public void agregarTicket(Ticket ticket) {
         baseDeDatos.agregarTicket(ticket);
     }
+
     public Producto consultarProducto(int productoId) {
         return baseDeDatos.consultarProducto(productoId);
     }
+
     public int consultarSiguienteProductoID() {
         return baseDeDatos.obtenerSiguienteProductoId();
     }
     public int consultarSiguienteTicketID() {
         return baseDeDatos.obtenerSiguienteTicketId();
     }
+
     public String eliminarProducto(int productoID, int cantidad) throws CantidadExcedida, ProductoNoExiste {
         String response;
-        if (existeProducto(productoID, 0)) {
+        if (existeProducto(productoID, 0)){
             Producto productoEliminado = baseDeDatos.eliminarProducto(productoID, cantidad);
             response = productoEliminado + " ha sido eliminado.";
         } else {
-            throw new ProductoNoExiste("El id de producto inexistente. Escoja en productos existentes"); // TODO: Escoja en productos existentes.
+            throw new ProductoNoExiste("El id de producto no existe en inventario. Consulta la lista de productos disponibles.");
         }
         return response;
     }
-    public HashMap<Integer, Producto> consultarListaProductosPorTipo (String tipo){
+    public HashMap<Integer, Producto> consultarListaProductosPorTipo(String tipo){
         return baseDeDatos.consultarProductosFiltrando(tipo);
     }
-    public HashMap<Integer, Ticket> consultarListaTickets () {
+    public HashMap<Integer, Ticket> consultarListaTickets() {
         return baseDeDatos.consultarTickets();
     }
-    public float consultarValorTotalInventario () {
+    public float consultarValorTotalInventario() {
         return baseDeDatos.consultarValorTotalStock();
     }
-    public float consultarValorTotalVentas () {
+    public float consultarValorTotalVentas() {
         return baseDeDatos.consultarValorTotalTickets();
     }
-    public boolean existeProducto(int productoID,int cantidadMinima) throws ProductoNoExiste {
+    public boolean existeProducto(int productoID, int cantidadMinima) throws ProductoNoExiste {
         boolean returnValue;
         Producto producto = baseDeDatos.consultarProducto(productoID);
         if (producto != null) {
             returnValue = producto.getProductoCantidad() > cantidadMinima;
         } else {
-            throw new ProductoNoExiste("El id de producto inexistente. Escoja en productos existentes");
+            throw new ProductoNoExiste("El id de producto no existe en inventario. Consulta la lista de productos disponibles.");
         }
         return returnValue;
     }
+
 }
-
-
