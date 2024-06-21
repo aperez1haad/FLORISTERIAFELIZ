@@ -94,7 +94,7 @@ public class Floristeria {
         return baseDeDatos.consultarProductosFiltrando(tipo);
     }
     public void consultarListaTickets () {
-        return baseDeDatos.consultarTickets();
+        baseDeDatos.consultarTickets();
     }
     public float consultarValorTotalInventario () {
         return baseDeDatos.consultarValorTotalStock();
