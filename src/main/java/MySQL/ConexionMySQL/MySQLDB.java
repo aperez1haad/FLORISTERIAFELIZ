@@ -5,7 +5,6 @@ import MySQL.Entrada.Material;
 import MySQL.Excepciones.CantidadExcedida;
 import MySQL.Excepciones.ProductoNoExiste;
 import MySQL.Model.*;
-
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -39,21 +38,18 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             String usuario = Input.inputString("Dime tu usuario MySQL:");
             String password = Input.inputString("Dime tu password MySQL:");
             try {
-                // Intenta conectar a la base de datos
                 String url = "jdbc:mysql://localhost:3306/?user=" + usuario + "&password=" + password;
                 conn = DriverManager.getConnection(url);
                 System.out.println("Conexión a MySQL establecida.");
 
-                // Verifica si la base de datos existe
                 ResultSet resultSet = conn.getMetaData().getCatalogs();
                 boolean dbExists = false;
                 while (resultSet.next()) {
-                    if (resultSet.getString(1).equalsIgnoreCase(this.dbName)) { // Usa el nombre proporcionado
+                    if (resultSet.getString(1).equalsIgnoreCase(this.dbName)) {
                         dbExists = true;
                         break;
                     }
                 }
-                // Si no existe, crea la base de datos
                 if (!dbExists) {
                     System.out.println("Base de datos no encontrada, creando base de datos...");
                     try (Statement stmt = conn.createStatement()) {
@@ -61,15 +57,10 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                         System.out.println("Base de datos creada exitosamente.");
                     }
                 }
-                // Conecta a la base de datos específica
                 String dbUrl = "jdbc:mysql://localhost:3306/" + dbName + "?user=" + usuario + "&password=" + password;
                 conn = DriverManager.getConnection(dbUrl);
-
-                System.out.println("Conectado a la base de datos " + dbName);  //Eugenia
-
-                // Crear tablas si no existen
+                System.out.println("Conectado a la base de datos " + dbName);
                 crearTablas(conn);
-
                 conexionEstablecida = true;
 
             } catch (SQLException e) {
@@ -80,9 +71,8 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         return true;
     }
     private void crearTablas(Connection conn) {
-        // Crear las tablas si no existen
         String createProductoTable = "CREATE TABLE IF NOT EXISTS producto (" +
-                "id INT PRIMARY KEY AUTO_INCREMENT, " +  // Añadido AUTO_INCREMENT
+                "id INT PRIMARY KEY AUTO_INCREMENT, " +
                 "nombre VARCHAR(50), " +
                 "precio FLOAT, " +
                 "tipo VARCHAR(50), " +
@@ -97,7 +87,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 "id INT PRIMARY KEY, " +
                 "material VARCHAR(50))";
         String createTicketTable = "CREATE TABLE IF NOT EXISTS ticket (" +
-                "id INT PRIMARY KEY AUTO_INCREMENT, " +  // Añadido AUTO_INCREMENT
+                "id INT PRIMARY KEY AUTO_INCREMENT, " +
                 "fecha DATE)";
         String createProductoTicketTable = "CREATE TABLE IF NOT EXISTS producto_ticket (" +
                 "ticketId INT, " +
@@ -122,7 +112,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(String.format(
                     "SELECT * FROM producto WHERE id = %d", producto.getProductoID()));
-
             if (rs.next()) {
                 int nuevaCantidad = producto.getProductoCantidad() + rs.getInt("cantidad");
                 actualizarCantidadProducto(producto.getProductoID(), nuevaCantidad);
@@ -188,12 +177,11 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             insertTicketOnTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_TICKET, Statement.RETURN_GENERATED_KEYS);
             insertTicketOnTicketDB.setDate(1, Date.valueOf(ticket.getTicketDate()));
             insertTicketOnTicketDB.executeUpdate();
-
             generatedKeys = insertTicketOnTicketDB.getGeneratedKeys();
+
             if (generatedKeys.next()) {
                 int ticketID = generatedKeys.getInt(1);
                 ticket.setTicketID(ticketID);
-
                 for (Producto producto : ticket.getProductosVendidos().values()) {
                     agregarProductoAlTicket(producto, ticketID);
                 }
@@ -201,9 +189,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             conn.commit();
         } catch (SQLException e) {
             try {
-                if (conn != null) {
-                    conn.rollback();
-                }
+                if (conn != null) {conn.rollback();}
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -211,12 +197,8 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             System.err.println(e.getMessage());
         } finally {
             try {
-                if (insertTicketOnTicketDB != null) {
-                    insertTicketOnTicketDB.close();
-                }
-                if (generatedKeys != null) {
-                    generatedKeys.close();
-                }
+                if (insertTicketOnTicketDB != null) {insertTicketOnTicketDB.close();}
+                if (generatedKeys != null) {generatedKeys.close();}
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -242,7 +224,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(QueriesSQL.LISTAR_TICKETS);
-
             System.out.println("=================================");
             System.out.println("Detalles de Tickets");
             System.out.println("=================================");
@@ -253,8 +234,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 int idTicket = rs.getInt("id_ticket");
                 Date fechaTicket = rs.getDate("fecha_ticket");
                 float totalTicket = rs.getFloat("total_ticket");
-
-                // Formatted output for better readability
                 System.out.printf("%-20d %-20s %20.2f\n", idTicket, fechaTicket, totalTicket);
             }
         } catch (SQLException e) {
@@ -270,13 +249,12 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             float totalTicket = 0;
 
             if (rs.next()) {
-                System.out.println("=============================================");
+                System.out.println("==============================");
                 System.out.println("Detalles del Ticket #" + idTicket);
-                System.out.println("=============================================");
+                System.out.println("==============================");
                 System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %20s\n",
                         "ID Ticket", "Fecha Ticket", "ID Producto", "Nombre Producto", "Cantidad", "Precio", "Importe Producto");
                 System.out.println("------------------------------------------------------------------");
-
                 do {
                     int productoId = rs.getInt("producto_id");
                     String nombreProducto = rs.getString("nombre_producto");
@@ -290,15 +268,10 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                             idTicket, fecha, productoId, nombreProducto, cantidadProducto, precioProducto, importeProducto);
 
                 } while (rs.next());
-
                 System.out.println("\nTotal Ticket: " + totalTicket);
-
-
-            }
-            else {
+            } else {
                 System.out.println("No se encontró ningún ticket con el ID: " + idTicket);
             }
-
         } catch (SQLException e) {
             System.err.println("Error al consultar el ticket: " + idTicket + " - " + e.getMessage());
         }
@@ -311,8 +284,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             ResultSet rs = stmt.executeQuery(QueriesSQL.GET_PRODUCTOS);
             productos = generaMapaProducto(rs);
         } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
+            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente."+e.getMessage());
         }
         return productos;
     }
@@ -322,27 +294,9 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             String tipo = rs.getString("tipo").toLowerCase();
             int id = rs.getInt("id");
             Producto producto = switch (tipo) {
-                case "arbol" -> new Arbol(
-                        id,
-                        rs.getString("nombre"),
-                        rs.getFloat("precio"),
-                        rs.getFloat("altura"),
-                        rs.getInt("cantidad")
-                );
-                case "flor" -> new Flor(
-                        id,
-                        rs.getString("nombre"),
-                        rs.getFloat("precio"),
-                        rs.getString("color"),
-                        rs.getInt("cantidad")
-                );
-                case "decoracion" -> new Decoracion(
-                        id,
-                        rs.getString("nombre"),
-                        rs.getFloat("precio"),
-                        Material.valueOf(rs.getString("material")),
-                        rs.getInt("cantidad")
-                );
+                case "arbol" -> new Arbol(id, rs.getString("nombre"), rs.getFloat("precio"), rs.getFloat("altura"), rs.getInt("cantidad"));
+                case "flor" -> new Flor(id, rs.getString("nombre"), rs.getFloat("precio"),rs.getString("color"), rs.getInt("cantidad"));
+                case "decoracion" -> new Decoracion(id, rs.getString("nombre"), rs.getFloat("precio"), Material.valueOf(rs.getString("material")), rs.getInt("cantidad"));
                 default -> throw new IllegalStateException("Unexpected value: " + tipo);
             };
             productos.put(id, producto);
@@ -366,16 +320,13 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 String tipo = rs.getString("tipo").toLowerCase();
                 switch (tipo) {
                     case "arbol":
-                        producto = new Arbol(id, rs.getString("nombre"), rs.getFloat("precio"),
-                                rs.getFloat("altura"), rs.getInt("cantidad"));
+                        producto = new Arbol(id, rs.getString("nombre"), rs.getFloat("precio"), rs.getFloat("altura"), rs.getInt("cantidad"));
                         break;
                     case "flor":
-                        producto = new Flor(id, rs.getString("nombre"), rs.getFloat("precio"),
-                                rs.getString("color"), rs.getInt("cantidad"));
+                        producto = new Flor(id, rs.getString("nombre"), rs.getFloat("precio"), rs.getString("color"), rs.getInt("cantidad"));
                         break;
                     case "decoracion":
-                        producto = new Decoracion(id, rs.getString("nombre"), rs.getFloat("precio"),
-                                Material.valueOf(rs.getString("material")), rs.getInt("cantidad"));
+                        producto = new Decoracion(id, rs.getString("nombre"), rs.getFloat("precio"), Material.valueOf(rs.getString("material")), rs.getInt("cantidad"));
                         break;
                 }
             }
@@ -384,11 +335,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return producto;
     }
-/*    @Override
-    public Ticket consultarTicket(int id) {
-        // Implementar consulta de ticket.
-        return null;
-    }*/
     @Override
     public HashMap<Integer, Producto> consultarProductosFiltrando(String tipo) {
         HashMap<Integer, Producto> productos = new HashMap<>();
@@ -407,31 +353,13 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 Producto producto = null;
                 switch (tipo.toLowerCase()) {
                     case "arbol":
-                        producto = new Arbol(
-                                rs.getInt("id"),
-                                rs.getString("nombre"),
-                                rs.getFloat("precio"),
-                                rs.getFloat("altura"),
-                                rs.getInt("cantidad")
-                        );
+                        producto = new Arbol(rs.getInt("id"), rs.getString("nombre"), rs.getFloat("precio"), rs.getFloat("altura"), rs.getInt("cantidad"));
                         break;
                     case "flor":
-                        producto = new Flor(
-                                rs.getInt("id"),
-                                rs.getString("nombre"),
-                                rs.getFloat("precio"),
-                                rs.getString("color"),
-                                rs.getInt("cantidad")
-                        );
+                        producto = new Flor(rs.getInt("id"), rs.getString("nombre"), rs.getFloat("precio"), rs.getString("color"), rs.getInt("cantidad"));
                         break;
                     case "decoracion":
-                        producto = new Decoracion(
-                                rs.getInt("id"),
-                                rs.getString("nombre"),
-                                rs.getFloat("precio"),
-                                Material.valueOf(rs.getString("material")),
-                                rs.getInt("cantidad")
-                        );
+                        producto = new Decoracion(rs.getInt("id"), rs.getString("nombre"), rs.getFloat("precio"), Material.valueOf(rs.getString("material")), rs.getInt("cantidad"));
                         break;
                 }
                 if (producto != null) {
@@ -460,9 +388,8 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     @Override
     public float consultarValorTotalTickets() {
         float valorTotal = 0;
-        float valorPorTicket=0;
+        float valorPorTicket = 0;
         int idticket;
-
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT t.id AS id_ticket, SUM(p.precio * pt.cantidad) AS valor_total\n" +
@@ -474,7 +401,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 idticket = rs.getInt("id_ticket");
                 valorPorTicket = rs.getFloat("valor_total");
                 valorTotal += valorPorTicket;
-                System.out.println("id ticket: "+idticket+": "+valorPorTicket);
+                System.out.println("id ticket: " + idticket + ": " + valorPorTicket);
             }
         } catch (SQLException e) {
             System.err.println("Error al consultar el valor total del stock: " + e.getMessage());
@@ -531,7 +458,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     public int obtenerSiguienteTicketId() {
         return generarSiguienteId("ticket");
     }
-
     private int generarSiguienteId(String nombreTabla) {
         try {
             Statement stmt = conn.createStatement();

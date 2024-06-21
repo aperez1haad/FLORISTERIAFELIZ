@@ -5,18 +5,12 @@ import MySQL.Entrada.Material;
 import MySQL.Excepciones.CantidadExcedida;
 import MySQL.Excepciones.ProductoNoExiste;
 import MySQL.Model.*;
-
 import java.util.HashMap;
 
-import static MySQL.App.AplicacionFloristeria.*;
-
 public class    Menu {
-
     private static Floristeria floristeria = Floristeria.getInstancia();
     public static void ejecutarMenu(){
-
         boolean salir = false;
-
         do{
             switch(menu()){
                 case 1: agregarProducto();
@@ -65,12 +59,10 @@ public class    Menu {
             if(opcion < MINIMO || opcion > MAXIMO){
                 System.err.println("Escoge una opción válida.");
             }
-
         }while(opcion < MINIMO || opcion > MAXIMO);
 
         return opcion;
     }
-
     public static void agregarProductoExistente(){
         int idProducto = Input.inputInt("Id del producto:");
         int cantidad = Input.inputInt("Cantidad a añadir:");
@@ -106,7 +98,6 @@ public class    Menu {
         System.out.println("Arbol " + nombre + "  creado correctamente.");
         return new Arbol(floristeria.consultarSiguienteProductoID(), nombre, precio, altura, cantidad);
     }
-
     public static Flor crearFlor() {
         String nombre = Input.inputString("Dime el nombre de la flor:");
         float precio = Input.inputFloat("Dime el precio:");
@@ -115,7 +106,6 @@ public class    Menu {
         System.out.println("Flor " + nombre + "  creada correctamente.");
         return new Flor(floristeria.consultarSiguienteProductoID(), nombre, precio, color, cantidad);
     }
-
     public static Decoracion crearDecoracion() {
         String nombre = Input.inputString("Dime el tipo de decoración:");
         float precio = Input.inputFloat("Dime el precio:");
@@ -150,7 +140,6 @@ public class    Menu {
                     + " | Cantidad: " + productoArbol.getProductoCantidad()
                     + " | Altura: " + productoArbol.getArbolAltura()
             );
-
         });
     }
     private static void consultarFlor (HashMap<Integer, Producto> stockFlor){
@@ -222,7 +211,7 @@ public class    Menu {
     public static void consultarUnTicket(){
         floristeria.consultarUnTicket(Input.inputInt("Indica el id del ticket"));
     }
-
+    
     public static void imprimirValorTotalDeVentas() {
         System.out.println("El valor total del ventas es de " + floristeria.consultarValorTotalVentas());
     }
