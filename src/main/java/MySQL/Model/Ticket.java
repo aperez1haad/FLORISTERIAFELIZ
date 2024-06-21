@@ -1,6 +1,5 @@
 package MySQL.Model;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
 
@@ -49,7 +48,6 @@ public class Ticket{
             }
             return producto;
         });
-        //productosVendidos.put(productoID, producto);
         return productosVendidos;
     }
 
@@ -60,6 +58,17 @@ public class Ticket{
 
     public float calcularValorTotalDelTicket() {
         return (float) productosVendidos.values().stream().mapToDouble(producto -> producto.getProductoPrecio() * producto.getProductoCantidad()).sum();
+    }
+    public int cantidadDeProductosEnTicket(){
+        int cantidadTotal = 0;
+        for (Producto producto : productosVendidos.values()) {
+            cantidadTotal += producto.getProductoCantidad();
+        }
+        return cantidadTotal;
+    }
+
+    public void setTicketID(int ticketID) {
+        this.ticketID = ticketID;
     }
 
     @Override

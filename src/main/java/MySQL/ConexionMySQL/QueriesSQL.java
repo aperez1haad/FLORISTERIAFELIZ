@@ -1,9 +1,9 @@
 package MySQL.ConexionMySQL;
 
 public class QueriesSQL {
-    public static final String AGREGAR_TICKET = "INSERT INTO ticket (id, fecha, valorTicket) VALUES(?,?,?)";
+    public static final String AGREGAR_TICKET = "INSERT INTO ticket (fecha) VALUES(?)";
     public static final String AGREGAR_PRODUCTO_TICKET =
-            "INSERT INTO producto_ticket (ticketId, productoId, cantidad,valorTotal) VALUES(?,?,?,?)";
+            "INSERT INTO producto_ticket (ticketId, productoId, cantidad) VALUES(?,?,?)";
 
  /*   public static final String CONSULTAR_PRODUCTOS_TICKET =
             "SELECT * FROM producto_ticket " +

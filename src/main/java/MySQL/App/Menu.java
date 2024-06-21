@@ -45,7 +45,7 @@ public class    Menu {
     public static byte menu(){
         byte opcion;
         final byte MINIMO = 0;
-        final byte MAXIMO = 7;
+        final byte MAXIMO = 8;
 
         do{
             opcion = Input.inputByte("\nBienvenido a " + floristeria.getNombre().toUpperCase() + "\n"
@@ -183,6 +183,7 @@ public class    Menu {
         Ticket ticket = new Ticket();
         agregarProductosTicket(ticket);
         floristeria.agregarTicket(ticket);
+        System.out.println("******   Ticket guardado correctamente   ******");
     }
     private static void agregarProductosTicket(Ticket ticket) {
         int productoID;
@@ -207,8 +208,9 @@ public class    Menu {
             } catch (ProductoNoExiste e) {
                 System.out.println(e.getMessage());
             }
-            si = Input.inputSiNo("Deseas agregar otro producto/ o cambiar cantidad? s/n");
-        } while (si);
+            si = Input.inputSiNo("\nDeseas agregar otro producto o sumar cantidad? s/n "+
+                    "\nEm caso de querer decremento, indiquelo con el operador '-'");
+    } while (si);
     }
     public static void consultarHistorialTickets() {
         floristeria.consultarListaTickets().entrySet().forEach(System.out::println);

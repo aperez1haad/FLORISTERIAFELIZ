@@ -122,18 +122,12 @@ public class Floristeria {
         }
         return returnValue;
     }
-
     public float consultarValorTotalStock() {
         float valorTotal = 0.0f;
-
-        // Consultar todos los productos
         HashMap<Integer, Producto> productos = baseDeDatos.consultarProductos();
-
-        // Iterar sobre los productos y sumar el valor total
         for (Producto producto : productos.values()) {
             valorTotal += producto.getProductoPrecio() * producto.getProductoCantidad();
         }
-
         return valorTotal;
     }
 

@@ -12,7 +12,7 @@ import java.util.Locale;
 
 public class MySQLDB implements InterfaceBaseDeDatos {
     private static MySQLDB instancia;
-    private String dbName; // Nombre de la base de datos introducido por el usuario
+    private String dbName;
     private int nextProductoId;
     private int nextTicketId;
     private static Connection conn;
@@ -26,22 +26,17 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             System.err.println("Error al establecer la conexión.");
         }
     }
-
     public static MySQLDB instanciar(String nombredb) {
         if (instancia == null) {
             instancia = new MySQLDB(nombredb);
         }
         return instancia;
     }
-
-
     public boolean obtenerConexion(String dbName) {
         boolean conexionEstablecida = false;
         while (!conexionEstablecida) {
-
             String usuario = Input.inputString("Dime tu usuario MySQL:");
             String password = Input.inputString("Dime tu password MySQL:");
-
             try {
                 // Intenta conectar a la base de datos
                 String url = "jdbc:mysql://localhost:3306/?user=" + usuario + "&password=" + password;
@@ -57,7 +52,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                         break;
                     }
                 }
-
                 // Si no existe, crea la base de datos
                 if (!dbExists) {
                     System.out.println("Base de datos no encontrada, creando base de datos...");
@@ -66,16 +60,11 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                         System.out.println("Base de datos creada exitosamente.");
                     }
                 }
-
-
                 // Conecta a la base de datos específica
                 String dbUrl = "jdbc:mysql://localhost:3306/" + dbName + "?user=" + usuario + "&password=" + password;
                 conn = DriverManager.getConnection(dbUrl);
 
-
                 System.out.println("Conectado a la base de datos " + dbName);  //Eugenia
-
-
 
                 // Crear tablas si no existen
                 crearTablas(conn);
@@ -89,8 +78,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return true;
     }
-
-
     private void crearTablas(Connection conn) {
         // Crear las tablas si no existen
         String createProductoTable = "CREATE TABLE IF NOT EXISTS producto (" +
@@ -116,7 +103,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 "productoId INT, " +
                 "cantidad INT, " +
                 "PRIMARY KEY(ticketId, productoId))";
-
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(createProductoTable);
             stmt.executeUpdate(createArbolTable);
@@ -129,8 +115,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             System.err.println("Error al crear las tablas: " + e.getMessage());
         }
     }
-
-
     @Override
     public void agregarProducto(Producto producto) {
         try {
@@ -176,29 +160,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             System.err.println(e.getMessage());
         }
     }
-
-    @Override
-    public Ticket agregarTicket(Ticket ticket) {
-        PreparedStatement insertTicketOnTicketDB;
-
-        try {
-            insertTicketOnTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_TICKET);
-            insertTicketOnTicketDB.setInt(1, ticket.getTicketID());
-            insertTicketOnTicketDB.setDate(2, Date.valueOf(ticket.getTicketDate()));
-            insertTicketOnTicketDB.execute();
-
-            for (Producto producto : ticket.getProductosVendidos().values()) {
-                agregarProductoAlTicket(producto, ticket.getTicketID());
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-
-        return ticket;
-    }
-
     @Override
     public void actualizarCantidadProducto(int id, int nuevaCantidad) {
         String query = "UPDATE producto SET cantidad = ? WHERE id = ?";
@@ -217,24 +178,64 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             System.err.println(e.getMessage());
         }
     }
+    @Override
+    public Ticket agregarTicket(Ticket ticket) {
+        PreparedStatement insertTicketOnTicketDB = null;
+        ResultSet generatedKeys = null;
+        try {
+            conn.setAutoCommit(false);
+            insertTicketOnTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_TICKET, Statement.RETURN_GENERATED_KEYS);
+            insertTicketOnTicketDB.setDate(1, Date.valueOf(ticket.getTicketDate()));
+            insertTicketOnTicketDB.executeUpdate();
 
+            generatedKeys = insertTicketOnTicketDB.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int ticketID = generatedKeys.getInt(1);
+                ticket.setTicketID(ticketID);
 
+                for (Producto producto : ticket.getProductosVendidos().values()) {
+                    agregarProductoAlTicket(producto, ticketID);
+                }
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
+            System.err.println(e.getMessage());
+        } finally {
+            try {
+                if (insertTicketOnTicketDB != null) {
+                    insertTicketOnTicketDB.close();
+                }
+                if (generatedKeys != null) {
+                    generatedKeys.close();
+                }
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return ticket;
+    }
     private void agregarProductoAlTicket(Producto producto, int ticketID) {
-        PreparedStatement insertProductOnProductTicketDB;
+        PreparedStatement insertProductOnProductTicketDB = null;
         try {
             insertProductOnProductTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_PRODUCTO_TICKET);
             insertProductOnProductTicketDB.setInt(1, ticketID);
             insertProductOnProductTicketDB.setInt(2, producto.getProductoID());
             insertProductOnProductTicketDB.setInt(3, producto.getProductoCantidad());
-            insertProductOnProductTicketDB.execute();
+            insertProductOnProductTicketDB.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
             System.err.println(e.getMessage());
         }
     }
-
-
-
     @Override
     public HashMap<Integer, Ticket> consultarTickets() {
         HashMap<Integer, Ticket> tickets = new HashMap<>();
@@ -251,9 +252,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return tickets;
     }
-
-
-
     @Override
     public HashMap<Integer, Producto> consultarProductos() {
         HashMap<Integer, Producto> productos = new HashMap<>();
@@ -267,8 +265,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return productos;
     }
-
-
     private HashMap<Integer, Producto> generaMapaProducto(ResultSet rs) throws SQLException {
         HashMap<Integer, Producto> productos = new HashMap<>();
         while (rs.next()) {
@@ -302,10 +298,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return productos;
     }
-
-
-
-
     @Override
     public Producto consultarProducto(int id) {
         Producto producto = null;
@@ -341,14 +333,11 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return producto;
     }
-
-
-    /*@Override
+/*    @Override
     public Ticket consultarTicket(int id) {
         // Implementar consulta de ticket.
         return null;
     }*/
-
     @Override
     public HashMap<Integer, Producto> consultarProductosFiltrando(String tipo) {
         HashMap<Integer, Producto> productos = new HashMap<>();
@@ -403,8 +392,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return productos;
     }
-
-
     @Override
     public float consultarValorTotalStock() {
         float valorTotal = 0;
@@ -419,26 +406,40 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return valorTotal;
     }
-
-
     @Override
     public float consultarValorTotalTickets() {
-        // Implementar consulta del valor total de los tickets.
-        return 0;
-    }
+        float valorTotal = 0;
+        float valorPorTicket=0;
+        int idticket;
 
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT t.id AS id_ticket, SUM(p.precio * pt.cantidad) AS valor_total\n" +
+                    "FROM ticket t\n" +
+                    "INNER JOIN producto_ticket pt ON t.id = pt.ticketId\n" +
+                    "INNER JOIN producto p ON pt.productoId = p.id\n" +
+                    "GROUP BY t.id;");
+            while (rs.next()) {
+                idticket = rs.getInt("id_ticket");
+                valorPorTicket = rs.getFloat("valor_total");
+                valorTotal += valorPorTicket;
+                System.out.println("id ticket: "+idticket+": "+valorPorTicket);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al consultar el valor total del stock: " + e.getMessage());
+        }
+        return valorTotal;
+    }
     @Override
     public Producto eliminarProducto(int id, int cantidad) throws CantidadExcedida, ProductoNoExiste {
         Producto producto = consultarProducto(id);
         if (producto == null) {
             throw new ProductoNoExiste("El producto con ID " + id + " no existe.");
         }
-
         int cantidadActual = producto.getProductoCantidad();
         if (cantidadActual < cantidad) {
             throw new CantidadExcedida("Cantidad excede el stock actual.");
         }
-
         int nuevaCantidad = cantidadActual - cantidad;
         try (Statement stmt = conn.createStatement()) {
             if (nuevaCantidad > 0) {
@@ -452,8 +453,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return producto;
     }
-
-
     private void eliminarDetallesProducto(int id, String tipo) throws SQLException {
         String tablaDetalles;
         switch (tipo.toLowerCase()) {
@@ -473,19 +472,14 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             stmt.executeUpdate("DELETE FROM " + tablaDetalles + " WHERE id = " + id);
         }
     }
-
-
     @Override
     public int obtenerSiguienteProductoId() {
         return generarSiguienteId("producto");
     }
-
     @Override
     public int obtenerSiguienteTicketId() {
         return generarSiguienteId("ticket");
     }
-
-
 
     private int generarSiguienteId(String nombreTabla) {
         try {
