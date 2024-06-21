@@ -97,11 +97,13 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 "material VARCHAR(50))";
         String createTicketTable = "CREATE TABLE IF NOT EXISTS ticket (" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, " +  // Añadido AUTO_INCREMENT
-                "fecha DATE)";
+                "fecha DATE, " +
+                "valorTicket FLOAT)";
         String createProductoTicketTable = "CREATE TABLE IF NOT EXISTS producto_ticket (" +
                 "ticketId INT, " +
                 "productoId INT, " +
                 "cantidad INT, " +
+                "valorTotal FLOAT, " +
                 "PRIMARY KEY(ticketId, productoId))";
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(createProductoTable);
@@ -170,7 +172,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             insertTicketOnTicketDB.setFloat(3, (float) ticket.getTicketTotal() );
             insertTicketOnTicketDB.execute();
             for (Producto producto : ticket.getProductosVendidos().values()) {
-                agregarProductoAlTicket(producto, ticket.getTicketID(),ticket);
+                agregarProductoAlTicket(producto, ticket.getTicketID(),(float) ticket.getTicketTotal());
             }
         } catch (SQLException e) {
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
@@ -196,14 +198,14 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             System.err.println(e.getMessage());
         }
     }
-    private void agregarProductoAlTicket(Producto producto, int ticketID, Ticket ticket) {
+    private void agregarProductoAlTicket(Producto producto, int ticketID, float valorticket) {
         PreparedStatement insertProductOnProductTicketDB;
         try {
             insertProductOnProductTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_PRODUCTO_TICKET);
             insertProductOnProductTicketDB.setInt(1, ticketID);
             insertProductOnProductTicketDB.setInt(2, producto.getProductoID());
             insertProductOnProductTicketDB.setInt(3, producto.getProductoCantidad());
-            insertProductOnProductTicketDB.setFloat(4, (float) ticket.getTicketTotal());
+            insertProductOnProductTicketDB.setFloat(4, valorticket);
             insertProductOnProductTicketDB.execute();
         } catch (SQLException e) {
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
