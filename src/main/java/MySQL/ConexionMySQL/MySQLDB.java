@@ -411,7 +411,21 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         float valorTotal = 0;
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT SUM(valorTotal) AS valor_total FROM producto_ticket");
+            ResultSet rs = stmt.executeQuery("SELECT t.id AS id_ticket, SUM(p.precio * pt.cantidad) AS valor_total\n" +
+                    "FROM ticket t\n" +
+                    "INNER JOIN producto_ticket pt ON t.id = pt.ticketId\n" +
+                    "INNER JOIN producto p ON pt.productoId = p.id\n" +
+                    "GROUP BY t.id;");
+            if (rs.next()) {
+                valorTotal = rs.getFloat("valor_total");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al consultar el valor total del stock: " + e.getMessage());
+        }
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT SUM(pt.cantidad) AS cantidad_total_vendida\n" +
+                    "FROM producto_ticket pt;");
             if (rs.next()) {
                 valorTotal = rs.getFloat("valor_total");
             }
