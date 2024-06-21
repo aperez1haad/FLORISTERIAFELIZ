@@ -7,6 +7,7 @@ import MySQL.Excepciones.ProductoNoExiste;
 import MySQL.Model.*;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -237,20 +238,70 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
     }
     @Override
-    public HashMap<Integer, Ticket> consultarTickets() {
-        HashMap<Integer, Ticket> tickets = new HashMap<>();
+    public void consultarTickets() {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(QueriesSQL.LISTAR_TICKETS);
+
+            System.out.println("=================================");
+            System.out.println("Detalles de Tickets");
+            System.out.println("=================================");
+            System.out.printf("%-20s %-20s %20s\n", "ID Ticket", "Fecha Ticket", "Total Ticket");
+            System.out.println("------------------------------------------------------");
+
             while (rs.next()) {
-                Ticket ticket = new Ticket();
-                tickets.put(ticket.getTicketID(), ticket);
+                int idTicket = rs.getInt("id_ticket");
+                Date fechaTicket = rs.getDate("fecha_ticket");
+                float totalTicket = rs.getFloat("total_ticket");
+
+                // Formatted output for better readability
+                System.out.printf("%-20d %-20s %20.2f\n", idTicket, fechaTicket, totalTicket);
             }
         } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
+            System.err.println("Error al consultar los detalles de los tickets: " + e.getMessage());
         }
-        return tickets;
+    }
+    @Override
+    public void consultarUnTicket(int idTicket) {
+        try {
+            PreparedStatement stmt = conn.prepareStatement(QueriesSQL.CONSULTAR_TICKET_POR_ID);
+            stmt.setInt(1, idTicket);
+            ResultSet rs = stmt.executeQuery();
+            float totalTicket = 0;
+
+            if (rs.next()) {
+                System.out.println("=============================================");
+                System.out.println("Detalles del Ticket #" + idTicket);
+                System.out.println("=============================================");
+                System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %20s\n",
+                        "ID Ticket", "Fecha Ticket", "ID Producto", "Nombre Producto", "Cantidad", "Precio", "Importe Producto");
+                System.out.println("------------------------------------------------------------------");
+
+                do {
+                    int productoId = rs.getInt("producto_id");
+                    String nombreProducto = rs.getString("nombre_producto");
+                    int cantidadProducto = rs.getInt("cantidad_producto");
+                    float precioProducto = rs.getFloat("precio_producto");
+                    float importeProducto = rs.getFloat("importe_producto");
+                    LocalDate fecha = rs.getDate("fecha_ticket").toLocalDate();
+                    totalTicket = totalTicket + importeProducto;
+
+                    System.out.printf("%-20d %-20s %-20d %-20s %-20d %-20.2f %20.2f\n",
+                            idTicket, fecha, productoId, nombreProducto, cantidadProducto, precioProducto, importeProducto);
+
+                } while (rs.next());
+
+                System.out.println("\nTotal Ticket: " + totalTicket);
+
+
+            }
+            else {
+                System.out.println("No se encontró ningún ticket con el ID: " + idTicket);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al consultar el ticket: " + idTicket + " - " + e.getMessage());
+        }
     }
     @Override
     public HashMap<Integer, Producto> consultarProductos() {
