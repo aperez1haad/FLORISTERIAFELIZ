@@ -93,7 +93,7 @@ public class Floristeria {
     public HashMap<Integer, Producto> consultarListaProductosPorTipo (String tipo){
         return baseDeDatos.consultarProductosFiltrando(tipo);
     }
-    public HashMap<Integer, Ticket> consultarListaTickets () {
+    public void consultarListaTickets () {
         return baseDeDatos.consultarTickets();
     }
     public float consultarValorTotalInventario () {

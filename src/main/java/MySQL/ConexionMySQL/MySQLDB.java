@@ -237,7 +237,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
     }
     @Override
-    public HashMap<Integer, Ticket> consultarTickets() {
+    public void consultarTickets() {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(QueriesSQL.LISTAR_TICKETS);
