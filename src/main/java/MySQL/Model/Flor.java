@@ -2,7 +2,6 @@ package MySQL.Model;
 
 public class Flor extends Producto {
 
-    private static final long serialVersionUID = 1L;
     private String florColor;
 
     public Flor(int productoID, String productoNombre, float productoPrecio, String florColor, int productoCantidad) {
