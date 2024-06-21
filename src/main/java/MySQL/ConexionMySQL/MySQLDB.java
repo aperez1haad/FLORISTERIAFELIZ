@@ -17,8 +17,8 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     private int nextTicketId;
     private static Connection conn;
 
-    private MySQLDB() {
-        this.dbName = "floristeriafeliz";
+    private MySQLDB(String nombredb) {
+        this.dbName = nombredb;
         if (obtenerConexion(dbName)) {
             nextProductoId = generarSiguienteId("producto");
             nextTicketId = generarSiguienteId("ticket");
@@ -27,9 +27,9 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
     }
 
-    public static MySQLDB instanciar() {
+    public static MySQLDB instanciar(String nombredb) {
         if (instancia == null) {
-            instancia = new MySQLDB();
+            instancia = new MySQLDB(nombredb);
         }
         return instancia;
     }

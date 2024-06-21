@@ -18,13 +18,13 @@ public class Floristeria {
 
     private Floristeria(String nombreFloristeria) {
         this.nombre =nombreFloristeria;
-        this.baseDeDatos = MySQLDB.instanciar();
+        this.baseDeDatos = MySQLDB.instanciar(nombreFloristeria);
     }
 
     public static Floristeria getInstancia() {
-
+        String nombre = Input.inputString("Dime el nombre de la floristeria");
         if (instancia == null) {
-            instancia = new Floristeria(Input.inputString("Dime el nombre de la floristeria"));
+            instancia = new Floristeria(nombre);
         }
         return instancia;
     }
