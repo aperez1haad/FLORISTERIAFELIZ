@@ -5,7 +5,6 @@ import MySQL.Entrada.Material;
 import MySQL.Excepciones.CantidadExcedida;
 import MySQL.Excepciones.ProductoNoExiste;
 import MySQL.Model.*;
-
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -39,12 +38,10 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             String usuario = Input.inputString("Dime tu usuario MySQL:");
             String password = Input.inputString("Dime tu password MySQL:");
             try {
-                // Intenta conectar a la base de datos
                 String url = "jdbc:mysql://localhost:3306/?user=" + usuario + "&password=" + password;
                 conn = DriverManager.getConnection(url);
                 System.out.println("Conexión a MySQL establecida.");
 
-                // Verifica si la base de datos existe
                 ResultSet resultSet = conn.getMetaData().getCatalogs();
                 boolean dbExists = false;
                 while (resultSet.next()) {
@@ -53,7 +50,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                         break;
                     }
                 }
-                // Si no existe, crea la base de datos
                 if (!dbExists) {
                     System.out.println("Base de datos no encontrada, creando base de datos...");
                     try (Statement stmt = conn.createStatement()) {
@@ -61,13 +57,10 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                         System.out.println("Base de datos creada exitosamente.");
                     }
                 }
-                // Conecta a la base de datos específica
                 String dbUrl = "jdbc:mysql://localhost:3306/" + dbName + "?user=" + usuario + "&password=" + password;
                 conn = DriverManager.getConnection(dbUrl);
 
-                System.out.println("Conectado a la base de datos " + dbName);  //Eugenia
-
-                // Crear tablas si no existen
+                System.out.println("Conectado a la base de datos " + dbName);
                 crearTablas(conn);
 
                 conexionEstablecida = true;
@@ -80,9 +73,8 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         return true;
     }
     private void crearTablas(Connection conn) {
-        // Crear las tablas si no existen
         String createProductoTable = "CREATE TABLE IF NOT EXISTS producto (" +
-                "id INT PRIMARY KEY AUTO_INCREMENT, " +  // Añadido AUTO_INCREMENT
+                "id INT PRIMARY KEY AUTO_INCREMENT, " +
                 "nombre VARCHAR(50), " +
                 "precio FLOAT, " +
                 "tipo VARCHAR(50), " +
@@ -97,7 +89,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 "id INT PRIMARY KEY, " +
                 "material VARCHAR(50))";
         String createTicketTable = "CREATE TABLE IF NOT EXISTS ticket (" +
-                "id INT PRIMARY KEY AUTO_INCREMENT, " +  // Añadido AUTO_INCREMENT
+                "id INT PRIMARY KEY AUTO_INCREMENT, " +
                 "fecha DATE)";
         String createProductoTicketTable = "CREATE TABLE IF NOT EXISTS producto_ticket (" +
                 "ticketId INT, " +
@@ -293,9 +285,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
 
                 System.out.println("\nTotal Ticket: " + totalTicket);
 
-
-            }
-            else {
+            } else {
                 System.out.println("No se encontró ningún ticket con el ID: " + idTicket);
             }
 
@@ -384,11 +374,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return producto;
     }
-/*    @Override
-    public Ticket consultarTicket(int id) {
-        // Implementar consulta de ticket.
-        return null;
-    }*/
     @Override
     public HashMap<Integer, Producto> consultarProductosFiltrando(String tipo) {
         HashMap<Integer, Producto> productos = new HashMap<>();
@@ -460,7 +445,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     @Override
     public float consultarValorTotalTickets() {
         float valorTotal = 0;
-        float valorPorTicket=0;
+        float valorPorTicket = 0;
         int idticket;
 
         try {
@@ -474,7 +459,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 idticket = rs.getInt("id_ticket");
                 valorPorTicket = rs.getFloat("valor_total");
                 valorTotal += valorPorTicket;
-                System.out.println("id ticket: "+idticket+": "+valorPorTicket);
+                System.out.println("id ticket: " + idticket + ": " + valorPorTicket);
             }
         } catch (SQLException e) {
             System.err.println("Error al consultar el valor total del stock: " + e.getMessage());
@@ -504,6 +489,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return producto;
     }
+
     private void eliminarDetallesProducto(int id, String tipo) throws SQLException {
         String tablaDetalles;
         switch (tipo.toLowerCase()) {
@@ -531,7 +517,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     public int obtenerSiguienteTicketId() {
         return generarSiguienteId("ticket");
     }
-
     private int generarSiguienteId(String nombreTabla) {
         try {
             Statement stmt = conn.createStatement();

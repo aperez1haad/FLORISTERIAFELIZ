@@ -8,7 +8,6 @@ import MySQL.Model.*;
 
 import java.util.HashMap;
 
-import static MySQL.App.AplicacionFloristeria.*;
 
 public class    Menu {
 
