@@ -267,6 +267,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             PreparedStatement stmt = conn.prepareStatement(QueriesSQL.CONSULTAR_TICKET_POR_ID);
             stmt.setInt(1, idTicket);
             ResultSet rs = stmt.executeQuery();
+            float totalTicket = 0;
 
             if (rs.next()) {
                 System.out.println("=============================================");
@@ -283,17 +284,21 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                     float precioProducto = rs.getFloat("precio_producto");
                     float importeProducto = rs.getFloat("importe_producto");
                     LocalDate fecha = rs.getDate("fecha_ticket").toLocalDate();
+                    totalTicket = totalTicket + importeProducto;
 
                     System.out.printf("%-20d %-20s %-20d %-20s %-20d %-20.2f %20.2f\n",
                             idTicket, fecha, productoId, nombreProducto, cantidadProducto, precioProducto, importeProducto);
+
                 } while (rs.next());
 
-                float totalTicket = rs.getFloat("total_ticket");
                 System.out.println("\nTotal Ticket: " + totalTicket);
 
-            } else {
+
+            }
+            else {
                 System.out.println("No se encontró ningún ticket con el ID: " + idTicket);
             }
+
         } catch (SQLException e) {
             System.err.println("Error al consultar el ticket: " + idTicket + " - " + e.getMessage());
         }
