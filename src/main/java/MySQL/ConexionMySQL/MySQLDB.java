@@ -343,11 +343,11 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     }
 
 
-    @Override
+    /*@Override
     public Ticket consultarTicket(int id) {
         // Implementar consulta de ticket.
         return null;
-    }
+    }*/
 
     @Override
     public HashMap<Integer, Producto> consultarProductosFiltrando(String tipo) {
