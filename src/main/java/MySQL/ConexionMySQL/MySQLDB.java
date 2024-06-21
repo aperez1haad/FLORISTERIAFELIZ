@@ -163,24 +163,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
     }
     @Override
-    public Ticket agregarTicket(Ticket ticket) {
-        PreparedStatement insertTicketOnTicketDB;
-        try {
-            insertTicketOnTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_TICKET);
-            insertTicketOnTicketDB.setInt(1, ticket.getTicketID());
-            insertTicketOnTicketDB.setDate(2, Date.valueOf(ticket.getTicketDate()));
-            insertTicketOnTicketDB.setFloat(3, (float) ticket.getTicketTotal() );
-            insertTicketOnTicketDB.execute();
-            for (Producto producto : ticket.getProductosVendidos().values()) {
-                agregarProductoAlTicket(producto, ticket.getTicketID(),(float) ticket.getTicketTotal());
-            }
-        } catch (SQLException e) {
-            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
-            System.err.println(e.getMessage());
-        }
-        return ticket;
-    }
-    @Override
     public void actualizarCantidadProducto(int id, int nuevaCantidad) {
         String query = "UPDATE producto SET cantidad = ? WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -198,15 +180,40 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             System.err.println(e.getMessage());
         }
     }
-    private void agregarProductoAlTicket(Producto producto, int ticketID, float valorticket) {
-        PreparedStatement insertProductOnProductTicketDB;
+    @Override
+    public Ticket agregarTicket(Ticket ticket) {
+        PreparedStatement insertTicketOnTicketDB;
+        ResultSet generatedKeys = null;
+        try {
+            conn.setAutoCommit(false);
+            insertTicketOnTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_TICKET, Statement.RETURN_GENERATED_KEYS);
+            insertTicketOnTicketDB.setDate(2, Date.valueOf(ticket.getTicketDate()));
+            insertTicketOnTicketDB.executeUpdate();
+
+            generatedKeys = insertTicketOnTicketDB.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int ticketID = generatedKeys.getInt(1);
+                ticket.setTicketID(ticketID);
+
+                for (Producto producto : ticket.getProductosVendidos().values()) {
+                    agregarProductoAlTicket(producto, ticketID);
+                }
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
+            System.err.println(e.getMessage());
+        }
+        return ticket;
+    }
+    private void agregarProductoAlTicket(Producto producto, int ticketID) {
+        PreparedStatement insertProductOnProductTicketDB = null;
         try {
             insertProductOnProductTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_PRODUCTO_TICKET);
             insertProductOnProductTicketDB.setInt(1, ticketID);
             insertProductOnProductTicketDB.setInt(2, producto.getProductoID());
             insertProductOnProductTicketDB.setInt(3, producto.getProductoCantidad());
-            insertProductOnProductTicketDB.setFloat(4, valorticket);
-            insertProductOnProductTicketDB.execute();
+            insertProductOnProductTicketDB.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
             System.err.println(e.getMessage());
