@@ -97,13 +97,11 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 "material VARCHAR(50))";
         String createTicketTable = "CREATE TABLE IF NOT EXISTS ticket (" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, " +  // Añadido AUTO_INCREMENT
-                "fecha DATE, " +
-                "valorTicket FLOAT)";
+                "fecha DATE)";
         String createProductoTicketTable = "CREATE TABLE IF NOT EXISTS producto_ticket (" +
                 "ticketId INT, " +
                 "productoId INT, " +
                 "cantidad INT, " +
-                "valorTotal FLOAT, " +
                 "PRIMARY KEY(ticketId, productoId))";
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(createProductoTable);

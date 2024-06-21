@@ -183,6 +183,7 @@ public class    Menu {
         Ticket ticket = new Ticket();
         agregarProductosTicket(ticket);
         floristeria.agregarTicket(ticket);
+        System.out.println("******   Ticket guardado correctamente   ******");
     }
     private static void agregarProductosTicket(Ticket ticket) {
         int productoID;
