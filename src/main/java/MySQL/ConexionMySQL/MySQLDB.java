@@ -182,7 +182,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     }
     @Override
     public Ticket agregarTicket(Ticket ticket) {
-        PreparedStatement insertTicketOnTicketDB;
+        PreparedStatement insertTicketOnTicketDB = null;
         ResultSet generatedKeys = null;
         try {
             conn.setAutoCommit(false);
@@ -201,8 +201,27 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             }
             conn.commit();
         } catch (SQLException e) {
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
             System.err.println(e.getMessage());
+        } finally {
+            try {
+                if (insertTicketOnTicketDB != null) {
+                    insertTicketOnTicketDB.close();
+                }
+                if (generatedKeys != null) {
+                    generatedKeys.close();
+                }
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return ticket;
     }
