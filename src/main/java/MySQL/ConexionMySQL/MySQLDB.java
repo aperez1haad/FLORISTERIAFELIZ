@@ -409,6 +409,9 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     @Override
     public float consultarValorTotalTickets() {
         float valorTotal = 0;
+        float valorPorTicket=0;
+        int idticket;
+
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT t.id AS id_ticket, SUM(p.precio * pt.cantidad) AS valor_total\n" +
@@ -416,18 +419,11 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                     "INNER JOIN producto_ticket pt ON t.id = pt.ticketId\n" +
                     "INNER JOIN producto p ON pt.productoId = p.id\n" +
                     "GROUP BY t.id;");
-            if (rs.next()) {
-                valorTotal = rs.getFloat("valor_total");
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al consultar el valor total del stock: " + e.getMessage());
-        }
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT SUM(pt.cantidad) AS cantidad_total_vendida\n" +
-                    "FROM producto_ticket pt;");
-            if (rs.next()) {
-                valorTotal = rs.getFloat("valor_total");
+            while (rs.next()) {
+                idticket = rs.getInt("id_ticket");
+                valorPorTicket = rs.getFloat("valor_total");
+                valorTotal += valorPorTicket;
+                System.out.println("id ticket: "+idticket+": "+valorPorTicket);
             }
         } catch (SQLException e) {
             System.err.println("Error al consultar el valor total del stock: " + e.getMessage());
