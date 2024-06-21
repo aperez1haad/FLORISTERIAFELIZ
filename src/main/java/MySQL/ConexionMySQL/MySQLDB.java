@@ -264,7 +264,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     public void consultarUnTicket(int idTicket) {
         try {
             PreparedStatement stmt = conn.prepareStatement(QueriesSQL.CONSULTAR_TICKET_POR_ID);
-            stmt.setInt(1, idTicket); // Set the parameter with the provided ID
+            stmt.setInt(1, idTicket);
 
             ResultSet rs = stmt.executeQuery();
 
@@ -284,7 +284,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                     float importeProducto = rs.getFloat("importe_producto");
 
                     System.out.printf("%-20d %-20d %-20d %-20s %-20d %-20.2f %20.2f\n",
-                            idTicket, rs.getDate("fecha_ticket"), productoId, nombreProducto, cantidadProducto, precioProducto, importeProducto);
+                            idTicket, rs.getDate("fecha_ticket").toString(), productoId, nombreProducto, cantidadProducto, precioProducto, importeProducto);
                 } while (rs.next()); // Iterate through all products in the ticket
 
                 float totalTicket = rs.getFloat("total_ticket");
