@@ -7,6 +7,7 @@ import MySQL.Excepciones.ProductoNoExiste;
 import MySQL.Model.*;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -265,7 +266,6 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         try {
             PreparedStatement stmt = conn.prepareStatement(QueriesSQL.CONSULTAR_TICKET_POR_ID);
             stmt.setInt(1, idTicket);
-
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -282,7 +282,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                     int cantidadProducto = rs.getInt("cantidad_producto");
                     float precioProducto = rs.getFloat("precio_producto");
                     float importeProducto = rs.getFloat("importe_producto");
-                    Date fecha = rs.getDate("fecha_ticket");
+                    int fecha = rs.getDate("fecha_ticket").toLocalDate().getDayOfMonth();
 
                     System.out.printf("%-20d %-20d %-20d %-20s %-20d %-20.2f %20.2f\n",
                             idTicket, fecha, productoId, nombreProducto, cantidadProducto, precioProducto, importeProducto);
