@@ -116,7 +116,7 @@ public class Floristeria {
         boolean returnValue;
         Producto producto = baseDeDatos.consultarProducto(productoID);
         if (producto != null) {
-            returnValue = producto.getProductoCantidad() > cantidadMinima;
+            returnValue = producto.getProductoCantidad() >= cantidadMinima;
         } else {
             throw new ProductoNoExiste("El id de producto inexistente. Escoja en productos existentes");
         }
