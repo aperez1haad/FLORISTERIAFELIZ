@@ -16,7 +16,7 @@ public interface InterfaceBaseDeDatos {
     HashMap<Integer, Producto> consultarProductos();
     HashMap<Integer, Ticket> consultarTickets();
     Producto consultarProducto(int id);
-    Ticket consultarTicket(int id);
+    //Ticket consultarTicket(int id);
     HashMap<Integer, Producto> consultarProductosFiltrando(String tipo);
     float consultarValorTotalStock();
     float consultarValorTotalTickets();

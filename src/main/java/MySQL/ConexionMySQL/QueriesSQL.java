@@ -3,7 +3,7 @@ package MySQL.ConexionMySQL;
 public class QueriesSQL {
     public static final String AGREGAR_TICKET = "INSERT INTO ticket (id, fecha) VALUES(?,?)";
     public static final String AGREGAR_PRODUCTO_TICKET =
-            "INSERT INTO producto_ticket (ticketId, productoId, cantidad) VALUES(?,?,?)";
+            "INSERT INTO producto_ticket (ticketId, productoId, cantidad,valorTotal) VALUES(?,?,?,?)";
 
     public static final String CONSULTAR_PRODUCTOS_TICKET =
             "SELECT * FROM producto_ticket " +
