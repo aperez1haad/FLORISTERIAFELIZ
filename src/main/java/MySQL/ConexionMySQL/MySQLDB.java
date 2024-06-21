@@ -261,6 +261,43 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
     }
     @Override
+    public void consultarUnTicket(int idTicket) {
+        try {
+            PreparedStatement stmt = conn.prepareStatement(QueriesSQL.CONSULTAR_TICKET_POR_ID);
+            stmt.setInt(1, idTicket); // Set the parameter with the provided ID
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("=============================================");
+                System.out.println("Detalles del Ticket #" + idTicket);
+                System.out.println("=============================================");
+                System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %20s\n",
+                        "ID Ticket", "Fecha Ticket", "ID Producto", "Nombre Producto", "Cantidad", "Precio", "Importe Producto");
+                System.out.println("------------------------------------------------------------------");
+
+                do {
+                    int productoId = rs.getInt("producto_id");
+                    String nombreProducto = rs.getString("nombre_producto");
+                    int cantidadProducto = rs.getInt("cantidad_producto");
+                    float precioProducto = rs.getFloat("precio_producto");
+                    float importeProducto = rs.getFloat("importe_producto");
+
+                    System.out.printf("%-20d %-20d %-20d %-20s %-20d %-20.2f %20.2f\n",
+                            idTicket, rs.getDate("fecha_ticket"), productoId, nombreProducto, cantidadProducto, precioProducto, importeProducto);
+                } while (rs.next()); // Iterate through all products in the ticket
+
+                float totalTicket = rs.getFloat("total_ticket");
+                System.out.println("\nTotal Ticket: " + totalTicket);
+
+            } else {
+                System.out.println("No se encontró ningún ticket con el ID: " + idTicket);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al consultar el ticket: " + idTicket + " - " + e.getMessage());
+        }
+    }
+    @Override
     public HashMap<Integer, Producto> consultarProductos() {
         HashMap<Integer, Producto> productos = new HashMap<>();
         try {

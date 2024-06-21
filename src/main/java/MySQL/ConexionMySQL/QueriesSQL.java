@@ -25,6 +25,20 @@ public class QueriesSQL {
         "INNER JOIN producto p ON pt.productoId = p.id\n" +
         "GROUP BY t.id, t.fecha";
 
+    public static final String CONSULTAR_TICKET_POR_ID="SELECT t.id AS id_ticket,\n" +
+            "       t.fecha AS fecha_ticket,\n" +
+            "       pt.productoId AS producto_id,\n" +
+            "       p.nombre AS nombre_producto,\n" +
+            "       pt.cantidad AS cantidad_producto,\n" +
+            "       p.precio AS precio_producto,\n" +
+            "       (pt.cantidad * p.precio) AS importe_producto,\n" +
+            "       SUM(pt.cantidad * p.precio) AS total_ticket\n" +
+            "FROM ticket t\n" +
+            "INNER JOIN producto_ticket pt ON t.id = pt.ticketId\n" +
+            "INNER JOIN producto p ON pt.productoId = p.id\n" +
+            "WHERE t.id = ? -- Parameter for the ticket ID\n" +
+            "GROUP BY t.id, pt.productoId";
+
     //public static final String DELETE_PRODUCTO = "DELETE FROM producto WHERE id = (?)";
     public static final String GET_PRODUCTOS = "SELECT * FROM producto " +
             "LEFT JOIN arbol ON producto.id = arbol.id " +

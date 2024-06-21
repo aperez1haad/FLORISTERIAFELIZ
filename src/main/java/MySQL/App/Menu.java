@@ -33,7 +33,9 @@ public class    Menu {
                     break;
                 case 7: consultarHistorialTickets();
                     break;
-                case 8: imprimirValorTotalDeVentas();
+                case 8: consultarUnTicket();
+                    break;
+                case 9: imprimirValorTotalDeVentas();
                     break;
                 case 0: System.out.println("Gracias por utilizar nuestra floristería.");
                     salir = true;
@@ -45,7 +47,7 @@ public class    Menu {
     public static byte menu(){
         byte opcion;
         final byte MINIMO = 0;
-        final byte MAXIMO = 8;
+        final byte MAXIMO = 9;
 
         do{
             opcion = Input.inputByte("\nBienvenido a " + floristeria.getNombre().toUpperCase() + "\n"
@@ -56,7 +58,8 @@ public class    Menu {
                     + "\n5. Consultar valor stock total."
                     + "\n6. Crear Ticket."
                     + "\n7. Lista historial Tickets."
-                    + "\n8. Totalizar ventas."
+                    + "\n8. Consultar un Ticket por id."
+                    + "\n9. Totalizar ventas."
                     + "\n0. Salir de la aplicación.\n");
 
             if(opcion < MINIMO || opcion > MAXIMO){
@@ -214,6 +217,10 @@ public class    Menu {
     }
     public static void consultarHistorialTickets() {
         floristeria.consultarListaTickets();
+    }
+
+    public static void consultarUnTicket(){
+        floristeria.consultarUnTicket(Input.inputInt("Indica el id del ticket"));
     }
 
     public static void imprimirValorTotalDeVentas() {
