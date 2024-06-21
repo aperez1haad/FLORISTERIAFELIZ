@@ -1,6 +1,5 @@
 package MySQL.Model;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
 
@@ -49,7 +48,6 @@ public class Ticket{
             }
             return producto;
         });
-        //productosVendidos.put(productoID, producto);
         return productosVendidos;
     }
 

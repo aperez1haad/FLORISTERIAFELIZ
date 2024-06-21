@@ -7,16 +7,11 @@ public abstract class Producto {
     private float productoPrecio;
     private String productoTipo;
     private int productoCantidad;
-    //private static BaseDeDatos baseDeDatos = BaseDeDatos.instanciar();
-    //protected static int proximoID = baseDeDatos.maximoIDStock()+1;
-
-
     public Producto(int productoID, String productoNombre, float productoPrecio, int cantidad) {
         this.productoID = productoID;
         this.productoNombre = productoNombre;
         this.productoPrecio = productoPrecio;
         this.productoCantidad = cantidad;
-        //proximoID++;
     }
 
     public int getProductoID() {
@@ -70,32 +65,6 @@ public abstract class Producto {
     public void resetProductoCantidad() {
         productoCantidad = 0;
     }
-
-
-    /*@Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!(obj instanceof Producto))
-            return false;
-        Producto other = (Producto) obj;
-        if (productoID != other.productoID)
-            return false;
-        if (productoNombre == null) {
-            if (other.productoNombre != null)
-                return false;
-        } else if (!productoNombre.equals(other.productoNombre))
-            return false;
-        if (Float.floatToIntBits(productoPrecio) != Float.floatToIntBits(other.productoPrecio))
-            return false;
-        if (productoTipo == null) {
-            if (other.productoTipo != null)
-                return false;
-        } else if (!productoTipo.equals(other.productoTipo))
-            return false;
-        return true;
-    }*/
-
     @Override
     public String toString() {
         return "Producto [ID= " + productoID + ", Nombre=" + productoNombre + ", Precio="

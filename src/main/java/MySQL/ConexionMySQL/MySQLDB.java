@@ -12,7 +12,7 @@ import java.util.Locale;
 
 public class MySQLDB implements InterfaceBaseDeDatos {
     private static MySQLDB instancia;
-    private String dbName; // Nombre de la base de datos introducido por el usuario
+    private String dbName;
     private int nextProductoId;
     private int nextTicketId;
     private static Connection conn;
