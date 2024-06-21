@@ -187,7 +187,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         try {
             conn.setAutoCommit(false);
             insertTicketOnTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_TICKET, Statement.RETURN_GENERATED_KEYS);
-            insertTicketOnTicketDB.setDate(2, Date.valueOf(ticket.getTicketDate()));
+            insertTicketOnTicketDB.setDate(1, Date.valueOf(ticket.getTicketDate()));
             insertTicketOnTicketDB.executeUpdate();
 
             generatedKeys = insertTicketOnTicketDB.getGeneratedKeys();
