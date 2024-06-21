@@ -1,5 +1,9 @@
 package MySQL.ConexionMySQL;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 public class QueriesSQL {
     public static final String AGREGAR_TICKET = "INSERT INTO ticket (fecha) VALUES(?)";
     public static final String AGREGAR_PRODUCTO_TICKET =
@@ -29,4 +33,5 @@ public class QueriesSQL {
             "LEFT JOIN arbol ON producto.id = arbol.id " +
             "LEFT JOIN flor ON producto.id = flor.id " +
             "LEFT JOIN decoracion ON producto.id = decoracion.id ";
+
 }

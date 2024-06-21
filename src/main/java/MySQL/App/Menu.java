@@ -5,17 +5,12 @@ import MySQL.Entrada.Material;
 import MySQL.Excepciones.CantidadExcedida;
 import MySQL.Excepciones.ProductoNoExiste;
 import MySQL.Model.*;
-
 import java.util.HashMap;
 
-
 public class    Menu {
-
     private static Floristeria floristeria = Floristeria.getInstancia();
     public static void ejecutarMenu(){
-
         boolean salir = false;
-
         do{
             switch(menu()){
                 case 1: agregarProducto();
