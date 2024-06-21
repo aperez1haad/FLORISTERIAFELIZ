@@ -182,12 +182,12 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     }
     @Override
     public Ticket agregarTicket(Ticket ticket) {
-        PreparedStatement insertTicketOnTicketDB;
+        PreparedStatement insertTicketOnTicketDB= null;
         ResultSet generatedKeys = null;
         try {
             conn.setAutoCommit(false);
             insertTicketOnTicketDB = conn.prepareStatement(QueriesSQL.AGREGAR_TICKET, Statement.RETURN_GENERATED_KEYS);
-            insertTicketOnTicketDB.setDate(2, Date.valueOf(ticket.getTicketDate()));
+            insertTicketOnTicketDB.setDate(1, Date.valueOf(ticket.getTicketDate()));
             insertTicketOnTicketDB.executeUpdate();
 
             generatedKeys = insertTicketOnTicketDB.getGeneratedKeys();
@@ -201,8 +201,27 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             }
             conn.commit();
         } catch (SQLException e) {
+            try {
+                if (conn != null) {
+                    conn.rollback();  // Revertir la transacción en caso de error
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             System.err.println("Hubo un error al acceder a los datos. Intenta nuevamente.");
             System.err.println(e.getMessage());
+        } finally {
+            try {
+                if (insertTicketOnTicketDB != null) {
+                    insertTicketOnTicketDB.close();
+                }
+                if (generatedKeys != null) {
+                    generatedKeys.close();
+                }
+                conn.setAutoCommit(true);  // Restablecer el modo de confirmación automática
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return ticket;
     }
