@@ -237,7 +237,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
     }
     @Override
-    public void consultarTickets() {
+    public HashMap<Integer, Ticket> consultarTickets() {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(QueriesSQL.LISTAR_TICKETS);
@@ -264,6 +264,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         } catch (SQLException e) {
             System.err.println("Error al consultar los detalles de los tickets: " + e.getMessage());
         }
+        return null;
     }
     @Override
     public HashMap<Integer, Producto> consultarProductos() {

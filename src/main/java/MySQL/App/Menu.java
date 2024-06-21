@@ -213,7 +213,7 @@ public class    Menu {
     } while (si);
     }
     public static void consultarHistorialTickets() {
-        floristeria.consultarListaTickets().entrySet().forEach(System.out::println);
+        floristeria.consultarListaTickets();
     }
 
     public static void imprimirValorTotalDeVentas() {

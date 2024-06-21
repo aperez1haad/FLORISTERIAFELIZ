@@ -14,7 +14,7 @@ public interface InterfaceBaseDeDatos {
     Ticket agregarTicket(Ticket ticket);
     void actualizarCantidadProducto(int id, int nuevaCantidad);
     HashMap<Integer, Producto> consultarProductos();
-    void consultarTickets();
+    HashMap<Integer, Ticket> consultarTickets();
     Producto consultarProducto(int id);
     //Ticket consultarTicket(int id);
     HashMap<Integer, Producto> consultarProductosFiltrando(String tipo);
