@@ -282,10 +282,11 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                     int cantidadProducto = rs.getInt("cantidad_producto");
                     float precioProducto = rs.getFloat("precio_producto");
                     float importeProducto = rs.getFloat("importe_producto");
+                    Date fecha = rs.getDate("fecha_ticket");
 
                     System.out.printf("%-20d %-20d %-20d %-20s %-20d %-20.2f %20.2f\n",
-                            idTicket, rs.getDate("fecha_ticket").toString(), productoId, nombreProducto, cantidadProducto, precioProducto, importeProducto);
-                } while (rs.next()); // Iterate through all products in the ticket
+                            idTicket, fecha, productoId, nombreProducto, cantidadProducto, precioProducto, importeProducto);
+                } while (rs.next());
 
                 float totalTicket = rs.getFloat("total_ticket");
                 System.out.println("\nTotal Ticket: " + totalTicket);
