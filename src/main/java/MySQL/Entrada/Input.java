@@ -6,14 +6,14 @@ import java.util.Scanner;
 public class Input {
 
     private static final Scanner input = new Scanner(System.in);
-    private static final String INT_FORMAT_ERR_MSG = "There is a format error on your response. Enter a integer";
-    private static final String DOUBLE_FORMAT_ERR_MSG = "There is a format error on your response. Enter a double";
-    private static final String FLOAT_FORMAT_ERR_MSG = "There is a format error on your response. Enter a float";
-    private static final String EMPTY_STRING_ERR_MSG = "Your respose must not be empty.";
-    private static final String YES_NO_ERR_MSG = "Hay un error en tu respuesta. Ingresa S or N if si o no.";
-    private static final String BYTE_FORMAT_ERR_MSG = "There is a format error on your response. Enter a byte";
+    private static final String INT_FORMAT_ERR_MSG = "Hay un error en el dato ingresado. Introduzca un número entero";
+    private static final String DOUBLE_FORMAT_ERR_MSG = "Hay un error en el dato ingresado. Introduzca un double";
+    private static final String FLOAT_FORMAT_ERR_MSG = "Hay un error en el dato ingresado. Introduzca un float";
+    private static final String EMPTY_STRING_ERR_MSG = "La respuesta no debe estar vacía. Introduzca los datos.";
+    private static final String YES_NO_ERR_MSG = "Hay un error en su respuesta. Ingrese S (si) o N (no).";
+    private static final String BYTE_FORMAT_ERR_MSG = "Hay un error en el dato ingresado. Introduzca un byte";
 
-    private static final String ENUM_FORMAT_ERR_MSG = "There is a format error on your response. Enter 'madera' or 'plastico'";
+    private static final String ENUM_FORMAT_ERR_MSG = "Hay un error en el dato ingresado. Introduzca 'madera' o 'plastico'";
 
 
     public static byte inputByte (String pregunta) {
@@ -55,7 +55,7 @@ public class Input {
             System.out.println(pregunta);
 
             try {
-                response = input.nextLine().trim();       //Eugenia adadir .trim()
+                response = input.nextLine().trim();
                 if (response.isEmpty()) {
                     throw new Exception(EMPTY_STRING_ERR_MSG);
                 } else {

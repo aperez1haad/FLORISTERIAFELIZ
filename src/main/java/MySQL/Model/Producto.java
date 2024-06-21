@@ -21,17 +21,12 @@ public abstract class Producto {
         return productoNombre;
     }
 
-    public void setProductoNombre(String productoNombre) {
-        this.productoNombre = productoNombre;
-    }
 
     public float getProductoPrecio() {
         return productoPrecio;
     }
 
-    public void setProductoPrecio(float productoPrecio) {
-        this.productoPrecio = productoPrecio;
-    }
+
 
     public String getProductoTipo() {
         return productoTipo;

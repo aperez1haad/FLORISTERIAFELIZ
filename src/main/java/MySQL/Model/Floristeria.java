@@ -65,9 +65,6 @@ public class Floristeria {
             return "Se eliminaron " + cantidad + " unidades del producto con ID " + productoID;
         }
     }
-    public HashMap<Integer, Producto> consultarListaProductos(){
-        return baseDeDatos.consultarProductos();
-    }
     public HashMap<Integer, Producto> consultarListaProductosPorTipo (String tipo){
         return baseDeDatos.consultarProductosFiltrando(tipo);
     }
@@ -83,7 +80,7 @@ public class Floristeria {
     public float consultarValorTotalVentas () {
         return baseDeDatos.consultarValorTotalTickets();
     }
-    public boolean existeProducto(int productoID) throws ProductoNoExiste {
+    /*public boolean existeProducto(int productoID) throws ProductoNoExiste {
         boolean returnValue;
         Producto producto = baseDeDatos.consultarProducto(productoID);
         if (producto != null) {
@@ -92,7 +89,7 @@ public class Floristeria {
             throw new ProductoNoExiste("El id de producto inexistente. Escoja en productos existentes");
         }
         return returnValue;
-    }
+    }*/
     public boolean existeProducto(int productoID,int cantidadMinima) throws ProductoNoExiste {
         boolean returnValue;
         Producto producto = baseDeDatos.consultarProducto(productoID);
