@@ -410,7 +410,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         float valorTotal = 0;
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT SUM(precio) AS valor_total FROM producto");
+            ResultSet rs = stmt.executeQuery("SELECT SUM(precio * cantidad) AS valor_total FROM producto");
             if (rs.next()) {
                 valorTotal = rs.getFloat("valor_total");
             }
