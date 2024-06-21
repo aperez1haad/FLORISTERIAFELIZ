@@ -3,7 +3,6 @@ package MySQL.Model;
 
 public class Arbol extends Producto {
 
-    private static final long serialVersionUID = 1L;
     private float arbolAltura;
 
     public Arbol(int productoID, String productoNombre, float productoPrecio, float arbolAltura, int productoCantidad) {

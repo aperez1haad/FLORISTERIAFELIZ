@@ -16,16 +16,15 @@ public class Floristeria {
     private InterfaceBaseDeDatos baseDeDatos;
 
 
-    private Floristeria(String dbName) {
-        this.nombre =dbName;
-        this.baseDeDatos = MySQLDB.instanciar(dbName);
+    private Floristeria(String nombreFloristeria) {
+        this.nombre =nombreFloristeria;
+        this.baseDeDatos = MySQLDB.instanciar();
     }
 
     public static Floristeria getInstancia() {
 
         if (instancia == null) {
-            String dbName = Input.inputString("Dime el nombre de la floristeria: ");
-            instancia = new Floristeria(dbName);
+            instancia = new Floristeria(Input.inputString("Dime el nombre de la floristeria"));
         }
         return instancia;
     }
@@ -38,12 +37,13 @@ public class Floristeria {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    public InterfaceBaseDeDatos getBaseDeDatos() {
+    /*public InterfaceBaseDeDatos getBaseDeDatos() {
         return baseDeDatos;
     }
     public void setBaseDeDatos(InterfaceBaseDeDatos baseDeDatos) {
         this.baseDeDatos = baseDeDatos;
-    }
+    }*/
+
     // Métodos propios.
 
     public void agregarProducto(Producto producto) {
@@ -87,10 +87,9 @@ public class Floristeria {
             return "Se eliminaron " + cantidad + " unidades del producto con ID " + productoID;
         }
     }
-
-
-
-
+    public HashMap<Integer, Producto> consultarListaProductos(){
+        return baseDeDatos.consultarProductos();
+    }
     public HashMap<Integer, Producto> consultarListaProductosPorTipo (String tipo){
         return baseDeDatos.consultarProductosFiltrando(tipo);
     }
@@ -103,6 +102,16 @@ public class Floristeria {
     public float consultarValorTotalVentas () {
         return baseDeDatos.consultarValorTotalTickets();
     }
+    public boolean existeProducto(int productoID) throws ProductoNoExiste {
+        boolean returnValue;
+        Producto producto = baseDeDatos.consultarProducto(productoID);
+        if (producto != null) {
+            returnValue = producto.getProductoCantidad() > 0;
+        } else {
+            throw new ProductoNoExiste("El id de producto inexistente. Escoja en productos existentes");
+        }
+        return returnValue;
+    }
     public boolean existeProducto(int productoID,int cantidadMinima) throws ProductoNoExiste {
         boolean returnValue;
         Producto producto = baseDeDatos.consultarProducto(productoID);
@@ -113,8 +122,6 @@ public class Floristeria {
         }
         return returnValue;
     }
-
-
 
     public float consultarValorTotalStock() {
         float valorTotal = 0.0f;

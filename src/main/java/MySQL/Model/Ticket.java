@@ -4,21 +4,18 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
 
-public class Ticket implements Serializable {
+public class Ticket{
 
-    private static final long serialVersionUID = 1L;
-    private int ticketID;
+    private int ticketID=0;
     private LocalDate ticketDate;
     private HashMap<Integer, Producto> productosVendidos;
     private float ticketTotal = 0.0F;
-    //private static int proximoID = 1;
 
-    public Ticket(int ticketID, LocalDate fecha) {
-        this.ticketID = ticketID;
+    public Ticket() {
+        this.ticketID += ticketID;
         ticketDate = LocalDate.now();
         productosVendidos = new HashMap<>();
         ticketTotal = calcularValorTotalDelTicket();
-        //proximoID++;
     }
 
     public LocalDate getTicketDate() {

@@ -17,8 +17,8 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     private int nextTicketId;
     private static Connection conn;
 
-    private MySQLDB(String dbName) {
-        this.dbName = dbName;
+    private MySQLDB() {
+        this.dbName = "floristeriafeliz";
         if (obtenerConexion(dbName)) {
             nextProductoId = generarSiguienteId("producto");
             nextTicketId = generarSiguienteId("ticket");
@@ -27,9 +27,9 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
     }
 
-    public static MySQLDB instanciar(String dbName) {
+    public static MySQLDB instanciar() {
         if (instancia == null) {
-            instancia = new MySQLDB(dbName);
+            instancia = new MySQLDB();
         }
         return instancia;
     }
@@ -242,7 +242,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(QueriesSQL.LISTAR_TICKETS);
             while (rs.next()) {
-                Ticket ticket = new Ticket(rs.getInt("id"), rs.getDate("fecha").toLocalDate());
+                Ticket ticket = new Ticket();
                 tickets.put(ticket.getTicketID(), ticket);
             }
         } catch (SQLException e) {

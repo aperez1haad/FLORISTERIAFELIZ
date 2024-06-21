@@ -13,11 +13,11 @@ public class AplicacionFloristeria {
 
     private static Floristeria floristeria;
     public static void start (){
-        floristeria = Floristeria.getInstancia();
+        //floristeria = Floristeria.getInstancia();
         Menu.ejecutarMenu();
     }
 
-    public static void agregarCantidadProducto (){
+    /*public static void agregarCantidadProducto (){
         int idProducto = Input.inputInt("Id del producto:");
         int cantidad = Input.inputInt("Cantidad a añadir:");
         Producto producto = floristeria.consultarProducto(idProducto);
@@ -27,9 +27,9 @@ public class AplicacionFloristeria {
         } else {
             floristeria.agregarCantidadProducto(idProducto, producto.getProductoCantidad() + cantidad);
         }
-    }
+    }*/
 
-    public static Arbol crearArbol() {
+   /*public static Arbol crearArbol() {
         String nombre = Input.inputString("Dime el nombre del árbol:");
         float precio = Input.inputFloat("Dime el precio:");
         float altura = Input.inputFloat("Dime la altura:");
@@ -54,9 +54,9 @@ public class AplicacionFloristeria {
         int cantidad = Input.inputInt("Dime la cantidad:");
         System.out.println("Decoración " + nombre + " creada correctamente.");
         return new Decoracion(floristeria.consultarSiguienteProductoID(), nombre, precio, material, cantidad);
-    }
+    }*/
 
-    public static void eliminarProducto() {
+    /*public static void eliminarProducto() {
         int id = Input.inputInt("ID de producto: ");
         int cantidad = Input.inputInt("Cantidad a retirar: ");
         try {
@@ -65,17 +65,17 @@ public class AplicacionFloristeria {
         } catch (CantidadExcedida | ProductoNoExiste e) {
             System.out.println(e.getMessage());
         }
-    }
+    }*/
 
 
 
-    public static void consultarProductos(){
+    /*public static void consultarProductos(){
         System.out.println("\nStock por tipo de producto:");
         consultarArbol(floristeria.consultarListaProductosPorTipo("arbol"));
         consultarFlor(floristeria.consultarListaProductosPorTipo("flor"));
         consultarDecoracion(floristeria.consultarListaProductosPorTipo("decoracion"));
-    }
-    private static void consultarArbol (HashMap<Integer, Producto> stockArbol){
+    }*/
+    /*private static void consultarArbol (HashMap<Integer, Producto> stockArbol){
         System.out.println("***ARBOL***:\n");
         stockArbol.values().forEach(producto -> {
             Arbol productoArbol = (Arbol) producto;
@@ -111,21 +111,21 @@ public class AplicacionFloristeria {
                     + " | Material: " + productoDecoracion.getDecoracionMaterial()
             );
         });
-    }
-    public static void consultarValorTotalStock() {
+    }*/
+/*    public static void consultarValorTotalStock() {
         float valorTotal = floristeria.consultarValorTotalInventario();
         String formattedValue = String.format("%.2f", valorTotal);
         System.out.println("El valor total del stock es de " + formattedValue + " Euros.");
-    }
+    }*/
 
 
-    public static void crearTicket() {
-        Ticket ticket = new Ticket(floristeria.consultarSiguienteTicketID(), LocalDate.now());
+/*    public static void crearTicket() {
+        Ticket ticket = new Ticket();
         agregarProductosTicket(ticket);
         floristeria.agregarTicket(ticket);
-    }
+    }*/
 
-    private static void agregarProductosTicket(Ticket ticket) {
+/*    private static void agregarProductosTicket(Ticket ticket) {
         int productoID;
         int cantidadProductoEnTicket;
         boolean si;
@@ -150,14 +150,14 @@ public class AplicacionFloristeria {
             }
             si = Input.inputSiNo("Deseas agregar otro producto/ o cambiar cantidad? s/n");
         } while (si);
-    }
+    }*/
 
-    public static void consultarHistorialTickets() {
+/*    public static void consultarHistorialTickets() {
         floristeria.consultarListaTickets().entrySet().forEach(System.out::println);
     }
 
     public static void imprimirValorTotalDeVentas() {
         System.out.println("El valor total del ventas es de " + floristeria.consultarValorTotalVentas());
-    }
+    }*/
 
 }

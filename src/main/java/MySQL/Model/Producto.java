@@ -1,18 +1,14 @@
 package MySQL.Model;
 
-import java.io.Serializable;
+public abstract class Producto {
 
-public abstract class Producto implements Serializable, Cloneable {
-
-    private static final long serialVersionUID = 1L;
     private int productoID;
     private String productoNombre;
     private float productoPrecio;
     private String productoTipo;
+    private int productoCantidad;
     //private static BaseDeDatos baseDeDatos = BaseDeDatos.instanciar();
     //protected static int proximoID = baseDeDatos.maximoIDStock()+1;
-
-    private int productoCantidad;
 
 
     public Producto(int productoID, String productoNombre, float productoPrecio, int cantidad) {
@@ -54,17 +50,10 @@ public abstract class Producto implements Serializable, Cloneable {
     public int getProductoCantidad() {
         return productoCantidad;
     }
+
     public void setProductoCantidad(int productoCantidad) {
         this.productoCantidad = productoCantidad;
     }
-
-	/*public static int getProximoID() {
-		return proximoID;
-	}
-
-	public static void setProximoID(int proximoID) {
-		Producto.proximoID = proximoID;
-	}*/
 
     public void reducirProductoCantidad(int cantidad) {
         productoCantidad = productoCantidad - cantidad;
@@ -82,22 +71,8 @@ public abstract class Producto implements Serializable, Cloneable {
         productoCantidad = 0;
     }
 
-    public Producto clonar () {
-        Producto pcopia = (Producto) this.clone();
-        return pcopia;
-    }
 
-    public Object clone(){
-        Object obj=null;
-        try{
-            obj=super.clone();
-        }catch(CloneNotSupportedException ex){
-            System.out.println(" no se puede duplicar");
-        }
-        return obj;
-    }
-
-    @Override
+    /*@Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -119,7 +94,7 @@ public abstract class Producto implements Serializable, Cloneable {
         } else if (!productoTipo.equals(other.productoTipo))
             return false;
         return true;
-    }
+    }*/
 
     @Override
     public String toString() {
