@@ -13,7 +13,6 @@ public abstract class Producto {
         this.productoPrecio = productoPrecio;
         this.productoCantidad = cantidad;
     }
-
     public int getProductoID() {
         return productoID;
     }
@@ -45,26 +44,10 @@ public abstract class Producto {
     public int getProductoCantidad() {
         return productoCantidad;
     }
-
     public void setProductoCantidad(int productoCantidad) {
         this.productoCantidad = productoCantidad;
     }
 
-    public void reducirProductoCantidad(int cantidad) {
-        productoCantidad = productoCantidad - cantidad;
-    }
-
-    public void reducirProductoCantidadUnidad() {
-        productoCantidad--;
-    }
-
-    public void incrementarProductoCantidadUnidad() {
-        productoCantidad++;
-    }
-
-    public void resetProductoCantidad() {
-        productoCantidad = 0;
-    }
     @Override
     public String toString() {
         return "Producto [ID= " + productoID + ", Nombre=" + productoNombre + ", Precio="
