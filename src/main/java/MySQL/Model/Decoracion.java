@@ -22,7 +22,7 @@ public class Decoracion extends Producto {
 
     @Override
     public String toString() {
-        return super.toString() + ", Material=" + decoracionMaterial + "]";
+        return super.toString() + "| Material = " + decoracionMaterial + " ]";
     }
 
 }

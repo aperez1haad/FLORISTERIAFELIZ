@@ -17,7 +17,7 @@ public class Arbol extends Producto {
     }
     @Override
     public String toString() {
-        return super.toString() + ", Altura=" + arbolAltura + "]";
+        return super.toString() + "| Altura = " + arbolAltura + " ]";
     }
 
 }

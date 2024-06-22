@@ -45,8 +45,8 @@ public abstract class Producto {
 
     @Override
     public String toString() {
-        return "Producto [ID= " + productoID + ", Nombre=" + productoNombre + ", Precio="
-                + productoPrecio + ", Tipo=" + productoTipo + ", Cantidad=" + productoCantidad + " ";
+        return "Producto [ ID = " + productoID + " | Nombre = " + productoNombre + " | Precio = "
+                + productoPrecio + " | Tipo = " + productoTipo + " | Cantidad = " + productoCantidad + " ";
     }
 
 

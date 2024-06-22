@@ -219,27 +219,36 @@ public class MySQLDB implements InterfaceBaseDeDatos {
             System.err.println(e.getMessage());
         }
     }
+
     @Override
     public void consultarTickets() {
         try {
-            Statement stmt = conn.createStatement();
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = stmt.executeQuery(QueriesSQL.LISTAR_TICKETS);
-            System.out.println("=================================");
-            System.out.println("Detalles de Tickets");
-            System.out.println("=================================");
-            System.out.printf("%-20s %-20s %20s\n", "ID Ticket", "Fecha Ticket", "Total Ticket");
-            System.out.println("------------------------------------------------------");
 
-            while (rs.next()) {
-                int idTicket = rs.getInt("id_ticket");
-                Date fechaTicket = rs.getDate("fecha_ticket");
-                float totalTicket = rs.getFloat("total_ticket");
-                System.out.printf("%-20d %-20s %20.2f\n", idTicket, fechaTicket, totalTicket);
+            if (!rs.next()) {
+                System.err.println("No existen tickets. Por favor crea tickets antes de consultar sus detalles.");
+            } else {
+                System.out.println("=================================");
+                System.out.println("Detalles de Tickets");
+                System.out.println("=================================");
+                System.out.printf("%-20s %-20s %20s\n", "ID Ticket", "Fecha Ticket", "Total Ticket");
+                System.out.println("------------------------------------------------------");
+
+                rs.beforeFirst();
+                while (rs.next()) {
+                    int idTicket = rs.getInt("id_ticket");
+                    Date fechaTicket = rs.getDate("fecha_ticket");
+                    float totalTicket = rs.getFloat("total_ticket");
+                    System.out.printf("%-20d %-20s %20.2f\n", idTicket, fechaTicket, totalTicket);
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al consultar los detalles de los tickets: " + e.getMessage());
         }
     }
+
+
     @Override
     public void consultarUnTicket(int idTicket) {
         try {
@@ -270,7 +279,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
                 } while (rs.next());
                 System.out.println("\nTotal Ticket: " + totalTicket);
             } else {
-                System.out.println("No se encontró ningún ticket con el ID: " + idTicket);
+                System.err.println("No se encontró ningún ticket con el ID: " + idTicket);
             }
         } catch (SQLException e) {
             System.err.println("Error al consultar el ticket: " + idTicket + " - " + e.getMessage());

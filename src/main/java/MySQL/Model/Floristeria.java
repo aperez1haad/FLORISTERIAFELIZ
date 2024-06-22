@@ -18,7 +18,7 @@ public class Floristeria {
         this.baseDeDatos = MySQLDB.instanciar(nombreFloristeria);
     }
     public static Floristeria getInstancia() {
-        String nombre = Input.inputString("Dime el nombre de la floristeria");
+        String nombre = Input.inputString("Dime el nombre de la floristeria: ");
         if (instancia == null) {
             instancia = new Floristeria(nombre);
         }
@@ -51,6 +51,7 @@ public class Floristeria {
 
     public String eliminarProducto(int productoID, int cantidad) throws CantidadExcedida, ProductoNoExiste {
         Producto producto = baseDeDatos.consultarProducto(productoID);
+        String returnMessage = "";
         if (producto == null) {
             throw new ProductoNoExiste("El producto con ID " + productoID + " no existe.");
         }
@@ -60,10 +61,11 @@ public class Floristeria {
         baseDeDatos.eliminarProducto(productoID, cantidad);
 
         if (producto.getProductoCantidad() - cantidad == 0) {
-            return "El producto con ID " + productoID + " ha sido completamente eliminado por que se a vencido todo su stock.";
+            returnMessage = "El producto con ID " + productoID + " ha sido completamente eliminado por que se a vencido todo su stock.";
         } else {
-            return "Se eliminaron " + cantidad + " unidades del producto con ID " + productoID;
+            returnMessage = "Se eliminaron " + cantidad + " unidades del producto con ID " + productoID;
         }
+        return returnMessage;
     }
     public HashMap<Integer, Producto> consultarListaProductosPorTipo (String tipo){
         return baseDeDatos.consultarProductosFiltrando(tipo);
