@@ -15,6 +15,9 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     private String dbName;
     private int nextProductoId;
     private int nextTicketId;
+    private static String usuario = "root";
+    private static String password = "Nic@1994";
+    private static String url = "jdbc:mysql://localhost:3306/?user=" + usuario + "&password=" + password;
     private static Connection conn;
 
     private MySQLDB(String nombredb) {
@@ -35,10 +38,8 @@ public class MySQLDB implements InterfaceBaseDeDatos {
     public boolean obtenerConexion(String dbName) {
         boolean conexionEstablecida = false;
         while (!conexionEstablecida) {
-            String usuario = Input.inputString("Dime tu usuario MySQL:");
-            String password = Input.inputString("Dime tu password MySQL:");
+
             try {
-                String url = "jdbc:mysql://localhost:3306/?user=" + usuario + "&password=" + password;
                 conn = DriverManager.getConnection(url);
                 System.out.println("Conexión a MySQL establecida.");
 
@@ -70,6 +71,7 @@ public class MySQLDB implements InterfaceBaseDeDatos {
         }
         return true;
     }
+
     private void crearTablas(Connection conn) {
         String createProductoTable = "CREATE TABLE IF NOT EXISTS producto (" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, " +
