@@ -4,7 +4,6 @@ import MySQL.Entrada.Material;
 
 public class Decoracion extends Producto {
 
-    private static final long serialVersionUID = 1L;
     private Enum<Material> decoracionMaterial;
 
     public Decoracion(int productoID, String productoNombre, float productoPrecio, Enum<Material> decoracionMaterial, int productoCantidad) {
@@ -23,7 +22,7 @@ public class Decoracion extends Producto {
 
     @Override
     public String toString() {
-        return super.toString() + ", Material=" + decoracionMaterial + "]";
+        return super.toString() + "| Material = " + decoracionMaterial + " ]";
     }
 
 }
