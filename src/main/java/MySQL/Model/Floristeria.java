@@ -59,8 +59,8 @@ public class Floristeria {
         }
         baseDeDatos.eliminarProducto(productoID, cantidad);
 
-        if (producto.getProductoCantidad() == cantidad) {
-            return "El producto con ID " + productoID + " ha sido completamente eliminado.";
+        if (producto.getProductoCantidad() - cantidad == 0) {
+            return "El producto con ID " + productoID + " ha sido completamente eliminado por que se a vencido todo su stock.";
         } else {
             return "Se eliminaron " + cantidad + " unidades del producto con ID " + productoID;
         }
@@ -101,5 +101,3 @@ public class Floristeria {
         return returnValue;
     }
 }
-
-
