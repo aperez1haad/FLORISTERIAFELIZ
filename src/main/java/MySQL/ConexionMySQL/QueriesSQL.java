@@ -5,11 +5,12 @@ public class QueriesSQL {
     public static final String AGREGAR_PRODUCTO_TICKET =
             "INSERT INTO producto_ticket (ticketId, productoId, cantidad) VALUES(?,?,?)";
 
-    public static final String LISTAR_TICKETS = "SELECT t.id AS id_ticket, t.fecha AS fecha_ticket, SUM(pt.cantidad * p.precio) AS total_ticket\n" +
-            "FROM ticket t\n" +
-            "INNER JOIN producto_ticket pt ON t.id = pt.ticketId\n" +
-            "INNER JOIN producto p ON pt.productoId = p.id\n" +
+    public static final String LISTAR_TICKETS = "SELECT t.id, t.fecha, COALESCE(SUM(p.precio * pt.cantidad), 0) AS total_ticket " +
+            "FROM ticket t " +
+            "LEFT JOIN producto_ticket pt ON t.id = pt.ticketId " +
+            "LEFT JOIN producto p ON pt.productoId = p.id " +
             "GROUP BY t.id, t.fecha";
+
 
     public static final String CONSULTAR_TICKET_POR_ID = "SELECT t.id AS id_ticket,\n" +
             "       t.fecha AS fecha_ticket,\n" +

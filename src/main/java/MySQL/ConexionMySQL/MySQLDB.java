@@ -224,31 +224,34 @@ public class MySQLDB implements InterfaceBaseDeDatos {
 
     @Override
     public void consultarTickets() {
-        try {
-            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ResultSet rs = stmt.executeQuery(QueriesSQL.LISTAR_TICKETS);
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(QueriesSQL.LISTAR_TICKETS)) {
 
-            if (!rs.next()) {
-                System.err.println("No existen tickets. Por favor crea tickets antes de consultar sus detalles.");
-            } else {
-                System.out.println("=================================");
-                System.out.println("Detalles de Tickets");
-                System.out.println("=================================");
-                System.out.printf("%-20s %-20s %20s\n", "ID Ticket", "Fecha Ticket", "Total Ticket");
-                System.out.println("------------------------------------------------------");
+            if (!rs.isBeforeFirst()) { // Verificar si hay resultados
+                System.err.println("No existen tickets. Por favor, crea tickets antes de consultar sus detalles.");
+                return;
+            }
 
-                rs.beforeFirst();
-                while (rs.next()) {
-                    int idTicket = rs.getInt("id_ticket");
-                    Date fechaTicket = rs.getDate("fecha_ticket");
-                    float totalTicket = rs.getFloat("total_ticket");
-                    System.out.printf("%-20d %-20s %20.2f\n", idTicket, fechaTicket, totalTicket);
-                }
+            System.out.println("=================================");
+            System.out.println("Detalles de Tickets");
+            System.out.println("=================================");
+            System.out.printf("%-10s %-20s %-15s\n", "ID Ticket", "Fecha Ticket", "Total Ticket");
+            System.out.println("---------------------------------------------");
+
+            while (rs.next()) {
+                int idTicket = rs.getInt("id");
+                Date fechaTicket = rs.getDate("fecha");
+                float totalTicket = rs.getFloat("total_ticket");
+
+                System.out.printf("%-10d %-20s %-15.2f\n", idTicket, fechaTicket, totalTicket);
             }
         } catch (SQLException e) {
             System.err.println("Error al consultar los detalles de los tickets: " + e.getMessage());
         }
     }
+
+
+
 
 
     @Override
