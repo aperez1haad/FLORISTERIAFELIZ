@@ -207,7 +207,7 @@ public class    Menu {
     public static void consultarHistorialTickets() {
         floristeria.consultarListaTickets();
     }
-    
+
     public static void consultarUnTicket(){
         floristeria.consultarUnTicket(Input.inputInt("Indica el id del ticket"));
     }
